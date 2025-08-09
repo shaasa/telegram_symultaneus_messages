@@ -1,0 +1,328 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Cronologia Messaggi') }} - {{ group.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header della pagina -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="fas fa-history"></i> {{ _('Cronologia Messaggi') }}</h2>
+                    <p class="text-muted mb-0">{{ _('Gruppo:') }} <strong>{{ group.name }}</strong></p>
+                </div>
+                <div>
+                    <a href="{{ url_for('groups.group_detail', group_id=group.id) }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> {{ _('Torna al Gruppo') }}
+                    </a>
+                </div>
+            </div>
+
+            <!-- Statistiche -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h4 class="text-primary">{{ stats.total }}</h4>
+                            <p class="text-muted mb-0">{{ _('Messaggi Totali') }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h4 class="text-success">{{ stats.sent }}</h4>
+                            <p class="text-muted mb-0">{{ _('Inviati') }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h4 class="text-danger">{{ stats.failed }}</h4>
+                            <p class="text-muted mb-0">{{ _('Falliti') }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h4 class="text-info">{{ stats.success_rate }}%</h4>
+                            <p class="text-muted mb-0">{{ _('Tasso Successo') }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtri -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-filter"></i> {{ _('Filtri') }}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" class="row">
+                        <div class="col-md-4">
+                            <label for="mh_status">{{ _('Stato:') }}</label>
+                            <select name="status" id="mh_status" class="form-control">
+                                <option value="">{{ _('Tutti') }}</option>
+                                <option value="sent" {% if current_status == 'sent' %}selected{% endif %}>{{ _('Inviati') }}</option>
+                                <option value="failed" {% if current_status == 'failed' %}selected{% endif %}>{{ _('Falliti') }}</option>
+                                <option value="pending" {% if current_status == 'pending' %}selected{% endif %}>{{ _('In attesa') }}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="mh_user_id">{{ _('Utente:') }}</label>
+                            <select name="user_id" id="mh_user_id" class="form-control">
+                                <option value="">{{ _('Tutti gli utenti') }}</option>
+                                {% for user in all_users %}
+                                <option value="{{ user.id }}" {% if current_user == user.id %}selected{% endif %}>
+                                    {{ user.full_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary mr-2">
+                                <i class="fas fa-search"></i> {{ _('Filtra') }}
+                            </button>
+                            <a href="{{ url_for('groups.message_history', group_id=group.id) }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-eraser"></i> {{ _('Reset') }}
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Lista messaggi -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-envelope"></i>
+                        {{ _('Messaggi') }}
+                        <span class="badge badge-secondary">{{ messages.total }} {{ _('totali') }}</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if messages.items %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>{{ _('Data/Ora') }}</th>
+                                <th>{{ _('Utente') }}</th>
+                                <th>{{ _('Messaggio') }}</th>
+                                <th>{{ _('Stato') }}</th>
+                                <th>{{ _('Dettagli') }}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for message in messages.items %}
+                            <tr>
+                                <td>
+                                    <small>{{ message.sent_at.strftime('%d/%m/%Y') }}</small><br>
+                                    <small class="text-muted">{{ message.sent_at.strftime('%H:%M:%S') }}</small>
+                                </td>
+                                <td>
+                                    <strong>{{ message.user.full_name }}</strong><br>
+                                    <small class="text-muted">
+                                        {% if message.user.username %}@{{ message.user.username }}{% endif %}
+                                        (ID: {{ message.user.telegram_id }})
+                                    </small>
+                                </td>
+                                <td>
+                                    <div class="mh-message-preview-short">
+                                        {{ message.message_text[:100] }}{% if message.message_text|length > 100 %}...{% endif %}
+                                    </div>
+                                    <small class="text-muted">{{ message.message_text|length }} {{ _('caratteri') }}</small>
+                                    {% if message.message_text|length > 100 %}
+                                    <br><button type="button"
+                                                class="btn btn-sm btn-outline-info"
+                                                onclick="mh_showFullMessage('{{ message.id }}')">
+                                    <i class="fas fa-expand"></i> {{ _('Mostra tutto') }}
+                                </button>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if message.status == 'sent' %}
+                                    <span class="badge badge-success">
+                                        <i class="fas fa-check"></i> {{ _('Inviato') }}
+                                    </span>
+                                    {% elif message.status == 'failed' %}
+                                    <span class="badge badge-danger">
+                                        <i class="fas fa-times"></i> {{ _('Fallito') }}
+                                    </span>
+                                    {% elif message.status == 'pending' %}
+                                    <span class="badge badge-warning">
+                                        <i class="fas fa-clock"></i> {{ _('In attesa') }}
+                                    </span>
+                                    {% else %}
+                                    <span class="badge badge-secondary">{{ message.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if message.telegram_message_id %}
+                                    <small class="text-muted">
+                                        <i class="fab fa-telegram"></i> {{ message.telegram_message_id }}
+                                    </small><br>
+                                    {% endif %}
+                                    {% if message.error_message %}
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-danger"
+                                            onclick="mh_showError('{{ message.id }}', '{{ message.error_message|e }}')">
+                                        <i class="fas fa-exclamation-triangle"></i> {{ _('Errore') }}
+                                    </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <!-- Hidden full message -->
+                            <div id="mh_fullMessage_{{ message.id }}" style="display: none;">
+                                {{ message.message_text }}
+                            </div>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Paginazione -->
+                    {% if messages.pages > 1 %}
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <div>
+                            {{ _('Pagina') }} {{ messages.page }} {{ _('di') }} {{ messages.pages }}
+                            ({{ messages.total }} {{ _('messaggi totali') }})
+                        </div>
+                        <nav>
+                            <ul class="pagination mb-0">
+                                {% if messages.has_prev %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('groups.message_history', group_id=group.id, page=messages.prev_num, status=current_status, user_id=current_user) }}">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                                {% endif %}
+
+                                {% for page_num in messages.iter_pages() %}
+                                {% if page_num %}
+                                {% if page_num != messages.page %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('groups.message_history', group_id=group.id, page=page_num, status=current_status, user_id=current_user) }}">
+                                        {{ page_num }}
+                                    </a>
+                                </li>
+                                {% else %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                                {% endif %}
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                                {% endif %}
+                                {% endfor %}
+
+                                {% if messages.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('groups.message_history', group_id=group.id, page=messages.next_num, status=current_status, user_id=current_user) }}">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                    {% endif %}
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">{{ _('Nessun messaggio trovato') }}</h4>
+                        {% if current_status or current_user %}
+                        <p class="text-muted">{{ _('Prova a modificare i filtri o') }} <a href="{{ url_for('groups.message_history', group_id=group.id) }}">{{ _('visualizza tutti i messaggi') }}</a></p>
+                        {% else %}
+                        <p class="text-muted">{{ _('Non sono ancora stati inviati messaggi per questo gruppo') }}</p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal per messaggio completo -->
+<div class="modal fade" id="mh_fullMessageModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ _('Messaggio Completo') }}</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mh-message-full" id="mh_messageContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _('Chiudi') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal per errore -->
+<div class="modal fade" id="mh_errorModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle"></i> {{ _('Dettagli Errore') }}
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="mh_errorContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _('Chiudi') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .mh-message-preview-short {
+        background-color: #f8f9fa;
+        padding: 8px;
+        border-radius: 4px;
+        border-left: 3px solid #007bff;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9em;
+    }
+
+    .mh-message-full {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 4px;
+        border-left: 4px solid #007bff;
+        font-family: 'Courier New', monospace;
+        white-space: pre-wrap;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+</style>
+
+<script>
+    function mh_showFullMessage(messageId) {
+        const fullMessage = document.getElementById('mh_fullMessage_' + messageId).textContent;
+        document.getElementById('mh_messageContent').textContent = fullMessage;
+        $('#mh_fullMessageModal').modal('show');
+    }
+
+    function mh_showError(messageId, errorMessage) {
+        document.getElementById('mh_errorContent').innerHTML = '<pre>' + errorMessage + '</pre>';
+        $('#mh_errorModal').modal('show');
+    }
+</script>
+{% endblock %}

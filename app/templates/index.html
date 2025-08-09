@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - Telegram Group Manager{% endblock %}
+{% block title %}{{ _('Dashboard') }} - {{ _('Telegram Group Manager') }}{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-12">
-        <h1 class="mb-4">Dashboard</h1>
+        <h1 class="mb-4">{{ _('Dashboard') }}</h1>
     </div>
 </div>
 
@@ -17,7 +17,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h4 class="card-title">{{ total_groups }}</h4>
-                        <p class="card-text">Gruppi Totali</p>
+                        <p class="card-text">{{ _('Gruppi Totali') }}</p>
                     </div>
                     <div class="align-self-center">
                         <span class="display-6">📢</span>
@@ -33,7 +33,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h4 class="card-title">{{ total_users }}</h4>
-                        <p class="card-text">Utenti Totali</p>
+                        <p class="card-text">{{ _('Utenti Totali') }}</p>
                     </div>
                     <div class="align-self-center">
                         <span class="display-6">👥</span>
@@ -49,10 +49,10 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h4 class="card-title">📨</h4>
-                        <p class="card-text">Messaggi Inviati</p>
+                        <p class="card-text">{{ _('Messaggi Inviati') }}</p>
                     </div>
                     <div class="align-self-center">
-                        <small>Oggi</small>
+                        <small>{{ _('Oggi') }}</small>
                     </div>
                 </div>
             </div>
@@ -65,7 +65,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h4 class="card-title">🤖</h4>
-                        <p class="card-text">Bot Status</p>
+                        <p class="card-text">{{ _('Bot Status') }}</p>
                     </div>
                     <div class="align-self-center">
                         <span id="bot-status" class="badge bg-secondary">Test</span>
@@ -81,28 +81,28 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h5 class="card-title mb-0">Azioni Rapide</h5>
+                <h5 class="card-title mb-0">{{ _('Azioni Rapide') }}</h5>
             </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-3 mb-2">
                         <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#createGroupModal">
-                            Crea Nuovo Gruppo
+                            {{ _('Crea Nuovo Gruppo') }}
                         </button>
                     </div>
                     <div class="col-md-3 mb-2">
                         <button class="btn btn-success w-100" onclick="importUsers()">
-                            Importa Utenti
+                            {{ _('Importa Utenti') }}
                         </button>
                     </div>
                     <div class="col-md-3 mb-2">
                         <button class="btn btn-info w-100" onclick="testConnection()">
-                            Testa Bot
+                            {{ _('Testa Bot') }}
                         </button>
                     </div>
                     <div class="col-md-3 mb-2">
                         <a href="{{ url_for('groups.list_groups') }}" class="btn btn-outline-primary w-100">
-                            Vedi Tutti i Gruppi
+                            {{ _('Vedi Tutti i Gruppi') }}
                         </a>
                     </div>
                 </div>
@@ -117,7 +117,7 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h5 class="card-title mb-0">Gruppi Recenti</h5>
+                <h5 class="card-title mb-0">{{ _('Gruppi Recenti') }}</h5>
             </div>
             <div class="card-body">
                 <div class="list-group list-group-flush">
@@ -125,13 +125,13 @@
                     <div class="list-group-item d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="mb-1">{{ group.name }}</h6>
-                            <p class="mb-1 text-muted">{{ group.description or 'Nessuna descrizione' }}</p>
-                            <small class="text-muted">Creato il {{ group.created_at.strftime('%d/%m/%Y alle %H:%M') }}</small>
+                            <p class="mb-1 text-muted">{{ group.description or _('Nessuna descrizione') }}</p>
+                            <small class="text-muted">{{ _('Creato il') }} {{ group.created_at.strftime('%d/%m/%Y alle %H:%M') }}</small>
                         </div>
                         <div>
-                            <span class="badge bg-primary rounded-pill me-2">{{ group.users|length }} utenti</span>
+                            <span class="badge bg-primary rounded-pill me-2">{{ group.users|length }} {{ _('utenti') }}</span>
                             <a href="{{ url_for('groups.group_detail', group_id=group.id) }}" class="btn btn-sm btn-outline-primary">
-                                Gestisci
+                                {{ _('Gestisci') }}
                             </a>
                         </div>
                     </div>
@@ -141,7 +141,7 @@
                 {% if recent_groups|length >= 5 %}
                 <div class="text-center mt-3">
                     <a href="{{ url_for('groups.list_groups') }}" class="btn btn-outline-primary">
-                        Vedi Tutti i Gruppi
+                        {{ _('Vedi Tutti i Gruppi') }}
                     </a>
                 </div>
                 {% endif %}
@@ -154,10 +154,10 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body text-center">
-                <h5>Nessun gruppo creato</h5>
-                <p class="text-muted">Inizia creando il tuo primo gruppo per gestire i messaggi agli utenti.</p>
+                <h5>{{ _('Nessun gruppo creato') }}</h5>
+                <p class="text-muted">{{ _('Inizia creando il tuo primo gruppo per gestire i messaggi agli utenti.') }}</p>
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createGroupModal">
-                    Crea il Primo Gruppo
+                    {{ _('Crea il Primo Gruppo') }}
                 </button>
             </div>
         </div>
@@ -171,7 +171,7 @@
         <div class="modal-content">
             <form action="{{ url_for('groups.create_group') }}" method="post">
                 <div class="modal-header">
-                    <h5 class="modal-title">Crea Nuovo Gruppo</h5>
+                    <h5 class="modal-title">{{ _('Crea Nuovo Gruppo') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -186,8 +186,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
-                    <button type="submit" class="btn btn-primary">Crea Gruppo</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Annulla') }}</button>
+                    <button type="submit" class="btn btn-primary">{{ _('Crea Gruppo') }}</button>
                 </div>
             </form>
         </div>

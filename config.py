@@ -33,6 +33,17 @@ class Config:
 
     TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
 
+    # Configurazioni Babel per internazionalizzazione
+    LANGUAGES = {
+        'it': 'Italiano',
+        'en': 'English',
+        'es': 'Español',
+        'fr': 'Français',
+        'de': 'Deutsch'
+    }
+    BABEL_DEFAULT_LOCALE = 'it'
+    BABEL_DEFAULT_TIMEZONE = 'Europe/Rome'
+
     # Configurazioni per l'ambiente di sviluppo
     DEBUG = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
 

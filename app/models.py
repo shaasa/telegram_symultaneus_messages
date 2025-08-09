@@ -42,6 +42,7 @@ class User(db.Model):
     first_name = db.Column(db.String(100))
     last_name = db.Column(db.String(100))
     display_name = db.Column(db.String(200))
+    language_code = db.Column(db.String(5), default='it')  # Temporaneamente commentato
     is_active = db.Column(db.Boolean, default=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -101,4 +102,62 @@ class MessageLog(db.Model):
             'status': self.status,
             'error_message': self.error_message,
             'telegram_message_id': self.telegram_message_id
+        }
+# Aggiungi questo alla fine del tuo file models.py esistente
+
+class MessageTemplate(db.Model):
+    __tablename__ = 'message_templates'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)  # Nome per ricordare il template
+    description = db.Column(db.Text)  # Descrizione opzionale
+    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    is_active = db.Column(db.Boolean, default=True, nullable=False)  # Per "eliminazione" soft
+
+    # Relazione con il gruppo
+    group = db.relationship('Group', backref='message_templates')
+
+    def __repr__(self):
+        return f'<MessageTemplate {self.name}>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'group_id': self.group_id,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'is_active': self.is_active,
+            'message_count': len(self.template_messages)
+        }
+
+class TemplateMessage(db.Model):
+    __tablename__ = 'template_messages'
+
+    id = db.Column(db.Integer, primary_key=True)
+    template_id = db.Column(db.Integer, db.ForeignKey('message_templates.id'), nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    message_text = db.Column(db.Text, nullable=False)
+    order_index = db.Column(db.Integer, default=0)  # Ordine dei messaggi
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    # Relazioni
+    template = db.relationship('MessageTemplate', backref='template_messages')
+    user = db.relationship('User', backref='template_messages')
+
+    def __repr__(self):
+        return f'<TemplateMessage {self.template_id}-{self.user_id}>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'template_id': self.template_id,
+            'user_id': self.user_id,
+            'message_text': self.message_text,
+            'order_index': self.order_index,
+            'created_at': self.created_at.isoformat(),
+            'user_name': self.user.full_name if self.user else None
         }
