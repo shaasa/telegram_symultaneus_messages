@@ -1,445 +1,491 @@
 # Telegram Group Manager
 
-Un'applicazione web per gestire gruppi di utenti e inviare messaggi personalizzati tramite bot Telegram.
+An advanced web application for managing user groups and sending personalized messages via Telegram bot with template support and detailed history tracking.
 
-## Funzionalità
+## Main Features
 
-- **Gestione Gruppi**: Crea e gestisci gruppi di utenti
-- **Messaggi Personalizzati**: Invia messaggi diversi a ogni utente del gruppo
-- **Importazione Utenti**: Importa automaticamente utenti che hanno interagito con il bot
-- **Interfaccia Web**: Dashboard moderna e responsive con Bootstrap
-- **Database Locale**: Utilizza SQLite per memorizzare dati localmente
+### Core Features
+- **Group Management**: Create and manage user groups with intuitive interface
+- **Personalized Messages**: Send different messages to each group user
+- **Message Templates**: Prepare and save message lists for future use
+- **Advanced History**: View sent messages with filters and statistics
+- **User Import**: Automatically import users who have interacted with the bot
+- **Multilingual Interface**: Support for 5 languages (Italian, English, French, German, Spanish)
+- **MySQL Database**: Reliable persistence with backup and optimized performance
 
-## Struttura del Progetto
+### New Features v2.0
+
+#### 🎯 **Message Templates**
+- **Template Creation**: Prepare personalized message lists with name and description
+- **Automatic Save**: Templates are saved in database for future reuse
+- **Quick Loading**: Load existing templates into the message sending form
+- **Direct Send**: Send all template messages with a single click
+- **Template Management**: View, edit and delete saved templates
+
+#### 📊 **Advanced Message History**
+- **Smart Filters**: Filter by status (sent/failed) and specific user
+- **Real-time Statistics**: View success rates and performance metrics
+- **Pagination**: Efficient handling of large message datasets
+- **Error Details**: View specific errors to diagnose problems
+- **Full View**: Expand long messages for complete visualization
+
+#### 🌍 **Multilingual Support**
+- **5 Supported Languages**: Italian (default), English, French, German, Spanish
+- **Dynamic Switching**: Change language with one click, stored in session
+- **Complete Interface**: All interface texts are translated
+- **.po Files**: Translation management via standard Gettext files
+
+#### 🔧 **Debug Tools**
+- **Bot Connection Test**: Verify token configuration and bot status
+- **Single Message Test**: Send test messages to specific users
+- **Environment Debug**: Check .env variables and configuration
+- **Detailed Logs**: Complete tracking of errors and successes
+
+## Project Structure
 
 ```
 telegram-group-manager/
 ├── app/
-│   ├── __init__.py              # Inizializzazione app Flask
-│   ├── models.py                # Modelli database (Group, User, MessageLog)
+│   ├── __init__.py              # Flask app initialization with Babel
+│   ├── models.py                # Extended database models
 │   ├── routes/
 │   │   ├── __init__.py
-│   │   ├── main.py              # Route homepage e dashboard
-│   │   ├── groups.py            # Route gestione gruppi
-│   │   └── telegram_bot.py      # Route operazioni bot Telegram
+│   │   ├── main.py              # Homepage and dashboard routes
+│   │   ├── groups.py            # Group and template management routes
+│   │   ├── telegram_bot.py      # Telegram bot operation routes
+│   │   └── i18n.py              # Language management routes
 │   ├── static/
 │   │   ├── css/
-│   │   │   └── custom.css       # Stili personalizzati
+│   │   │   └── custom.css       # Custom styles
 │   │   └── js/
-│   │       └── main.js          # JavaScript personalizzato
+│   │       └── main.js          # Custom JavaScript
 │   ├── templates/
-│   │   ├── base.html            # Template base
+│   │   ├── base.html            # Base template with language selector
 │   │   ├── index.html           # Homepage/Dashboard
-│   │   ├── groups.html          # Lista gruppi
-│   │   └── group_detail.html    # Dettaglio gruppo e invio messaggi
-│   └── utils/
-│       ├── __init__.py
-│       └── telegram_helper.py   # Funzioni helper per API Telegram
+│   │   ├── group_detail.html    # Group detail with advanced tools
+│   │   └── groups/              # Templates for group features
+│   │       ├── templates.html   # Saved templates list
+│   │       ├── create_template.html  # New template creation
+│   │       ├── view_template.html    # Template view
+│   │       └── message_history.html # Advanced message history
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   └── telegram_helper.py   # Helper functions for Telegram API
+│   └── translations/            # Translation files
+│       ├── en/LC_MESSAGES/      # English
+│       ├── fr/LC_MESSAGES/      # French
+│       ├── de/LC_MESSAGES/      # German
+│       └── es/LC_MESSAGES/      # Spanish
 ├── instance/
-│   └── database.db              # Database SQLite (generato automaticamente)
-├── .env                         # Variabili d'ambiente (TOKEN BOT)
-├── .gitignore                   # File da ignorare in Git
-├── config.py                    # Configurazione applicazione
-├── requirements.txt             # Dipendenze Python
-├── run.py                       # Entry point applicazione
-└── README.md                    # Questo file
+├── .env                         # Environment variables
+├── babel.cfg                    # Babel configuration
+├── requirements.txt             # Updated Python dependencies
+├── run.py                       # Application entry point
+└── README.md                    # This file
 ```
 
-## Installazione
+## Installation
 
-### Prerequisiti
+### Prerequisites
 
-- Python 3.8 o superiore
-- MySQL 5.7 o superiore (o MariaDB 10.2+)
-- Bot Telegram creato tramite @BotFather
-- Token del bot Telegram
+- Python 3.8 or higher
+- MySQL 5.7 or higher (or MariaDB 10.2+)
+- Telegram bot created via @BotFather
+- Telegram bot token
 
-### Setup Database MySQL
+### MySQL Database Setup
 
-1. **Installa MySQL**
+1. **Install MySQL**
    ```bash
    # Ubuntu/Debian
    sudo apt update
    sudo apt install mysql-server
    
-   # macOS con Homebrew
+   # macOS with Homebrew
    brew install mysql
    
-   # Windows: Scarica da https://dev.mysql.com/downloads/mysql/
+   # Windows: Download from https://dev.mysql.com/downloads/mysql/
    ```
 
-2. **Configura MySQL**
+2. **Configure MySQL**
    ```bash
-   # Accedi a MySQL
+   # Access MySQL
    sudo mysql -u root -p
    
-   # Crea utente dedicato (raccomandato)
-   CREATE USER 'telegram_user'@'localhost' IDENTIFIED BY 'strong_password';
+   # Create dedicated user
+   CREATE USER 'telegram_user'@'localhost' IDENTIFIED BY 'your_password';
    
-   # Concedi permessi
+   # Create database
+   CREATE DATABASE telegram_manager CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   
+   # Grant permissions
    GRANT ALL PRIVILEGES ON telegram_manager.* TO 'telegram_user'@'localhost';
    FLUSH PRIVILEGES;
-   
-   # Esci
    EXIT;
    ```
 
-### Setup Applicazione
+### Application Setup
 
-1. **Clona o scarica il progetto**
+1. **Clone or download the project**
    ```bash
    cd telegram-group-manager
    ```
 
-2. **Crea ambiente virtuale** (raccomandato)
+2. **Create virtual environment**
    ```bash
    python -m venv venv
    
-   # Su Linux/Mac
+   # On Linux/Mac
    source venv/bin/activate
    
-   # Su Windows
+   # On Windows
    venv\Scripts\activate
    ```
 
-3. **Installa dipendenze**
+3. **Install dependencies**
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Configura variabili d'ambiente**
+4. **Configure environment variables**
 
-   Modifica il file `.env` con i tuoi dati:
+   Edit the `.env` file:
    ```env
-   # Bot Telegram
+   # Telegram Bot
    TELEGRAM_BOT_TOKEN=1234567890:ABCdefGHIjklMNOpqrsTUVwxyz
    
-   # Database MySQL
+   # MySQL Database
    DB_HOST=localhost
    DB_PORT=3306
    DB_NAME=telegram_manager
    DB_USER=telegram_user
-   DB_PASSWORD=strong_password
+   DB_PASSWORD=your_password
    
-   # Sicurezza
+   # Security
    SECRET_KEY=your_very_long_random_secret_key_here
    
-   # Ambiente
+   # Environment
    FLASK_ENV=development
    FLASK_DEBUG=True
    ```
 
-5. **Setup database**
+5. **Create additional tables**
    ```bash
-   # Esegui script automatico di setup
-   python setup_database.py
-   
-   # Oppure manualmente:
-   # 1. Crea database: CREATE DATABASE telegram_manager;
-   # 2. Avvia app: python run.py (creerà le tabelle automaticamente)
+   python create_message_templates.py
    ```
 
-6. **Avvia l'applicazione**
+6. **Start the application**
    ```bash
    python run.py
    ```
 
-7. **Accedi all'applicazione**
+7. **Access the application**
 
-   Apri il browser e vai su: `http://127.0.0.1:5000`
+   Open browser: `http://127.0.0.1:5000`
 
-## Configurazione Bot Telegram
+## Telegram Bot Configuration
 
-### Creazione Bot
+### Bot Creation
 
-1. Apri Telegram e cerca `@BotFather`
-2. Invia `/newbot` e segui le istruzioni
-3. Ottieni il token del bot (formato: `123456789:ABCdefGHIjklMNOpqrsTUVwxyz`)
-4. Inserisci il token nel file `.env`
+1. Open Telegram and search for `@BotFather`
+2. Send `/newbot` and follow instructions
+3. Get the bot token
+4. Insert the token in the `.env` file
 
-### Preparazione Bot per Importazione Utenti
+### Configuration Testing
 
-Per importare utenti dal bot, gli utenti devono aver interagito almeno una volta con il bot. Puoi:
+Use the integrated debug tools:
+- `/groups/{group_id}/debug_bot` - Test token and connection
+- `/groups/{group_id}/test_message/{user_id}` - Test single message sending
 
-1. **Condividere il bot** con i tuoi utenti
-2. **Impostare comandi base** nel bot tramite @BotFather:
-   ```
-   /setcommands
-   start - Inizia conversazione
-   help - Mostra aiuto
-   ```
+## Using New Features
 
-3. **Chiedere agli utenti** di inviare `/start` al bot
+### 🎯 Message Templates
 
-## Utilizzo
+#### Template Creation
+1. Go to group details
+2. Click **"New Template"** in Advanced Tools section
+3. Enter template name and description
+4. Fill personalized messages for each user
+5. Click **"Save Template"**
 
-### 1. Dashboard
-- Visualizza statistiche generali
-- Azioni rapide per creare gruppi e importare utenti
-- Lista gruppi recenti
+#### Template Usage
+1. Go to **"View Templates"** to see saved templates
+2. Click **"Load & Send"** to load a template into the form
+3. Modify messages if needed
+4. Send normally or use **"Direct Send"** from template
 
-### 2. Gestione Gruppi
-- **Crea Gruppo**: Nome e descrizione opzionale
-- **Aggiungi Utenti**: Seleziona da lista utenti disponibili
-- **Rimuovi Utenti**: Rimuovi utenti dal gruppo
+#### Template Management
+- **View**: See all messages in a template
+- **Load**: Load into form for modifications
+- **Direct Send**: Send immediately without changes
+- **Delete**: Remove templates no longer needed
 
-### 3. Invio Messaggi
-- **Messaggi Personalizzati**: Scrivi messaggio diverso per ogni utente
-- **Messaggio Globale**: Compila tutti i campi con lo stesso messaggio
-- **Anteprima**: Vedi utenti e messaggi prima dell'invio
-- **Log**: Tracciamento messaggi inviati/falliti
+### 📊 Advanced Message History
 
-### 4. Importazione Utenti
-- **Automatica**: Importa utenti che hanno scritto al bot
-- **Manuale**: Aggiungi utenti inserendo ID Telegram
-- **Aggiornamento**: Aggiorna dati utenti esistenti
+#### Viewing
+1. Go to group details
+2. Click **"Message History"** in Advanced Tools
+3. View real-time success statistics
 
-## Struttura Database
+#### Available Filters
+- **By Status**: All, Sent, Failed, Pending
+- **By User**: Filter messages from specific user
+- **Combined**: Use both filters together
 
-### Configurazione MySQL
+#### Features
+- **Pagination**: Navigate through message pages
+- **Error Details**: Click "Error" to see specific details
+- **Full Messages**: Expand truncated long messages
+- **Reset Filters**: Return to complete view
 
-Il progetto utilizza MySQL come database principale per garantire:
-- **Persistenza**: Dati sicuri e permanenti
-- **Performance**: Gestione efficiente di molti utenti e gruppi
-- **Relazioni**: Struttura relazionale ottimizzata
-- **Backup**: Facilità di backup e restore
+### 🌍 Language Switching
 
-### Tabelle Principali
+1. Use the language selector in the header (top right)
+2. Language is stored in session
+3. Reload page to see all translated texts
 
-**groups**
-- `id`: ID primario
-- `name`: Nome gruppo (univoco, max 100 char)
-- `description`: Descrizione opzionale (TEXT)
-- `created_at`: Data creazione (DATETIME)
-- `updated_at`: Ultimo aggiornamento (DATETIME)
+#### Supported Languages
+- 🇮🇹 **Italiano** (default)
+- 🇬🇧 **English**
+- 🇫🇷 **Français**
+- 🇩🇪 **Deutsch**
+- 🇪🇸 **Español**
 
-**users**
-- `id`: ID primario
-- `telegram_id`: ID Telegram utente (VARCHAR(20), univoco, indicizzato)
-- `username`: Username Telegram (VARCHAR(100), indicizzato)
-- `first_name`, `last_name`: Nome e cognome (VARCHAR(100))
-- `display_name`: Nome di visualizzazione (VARCHAR(200))
-- `is_active`: Stato attivo (BOOLEAN)
-- `created_at`: Data creazione (DATETIME)
-- `updated_at`: Ultimo aggiornamento (DATETIME)
-- `last_interaction`: Ultima interazione con bot (DATETIME)
+## Updated Database Structure
 
-**message_logs**
-- `id`: ID primario
-- `group_id`: Riferimento al gruppo (FK, indicizzato)
-- `user_id`: Riferimento all'utente (FK, indicizzato)
-- `message_text`: Testo messaggio (TEXT)
-- `sent_at`: Data/ora invio (DATETIME)
-- `status`: Stato (VARCHAR(20): pending, sent, failed, indicizzato)
-- `error_message`: Messaggio errore se fallito (TEXT)
-- `telegram_message_id`: ID messaggio Telegram (VARCHAR(50))
+### New Tables
 
-**group_users** (Tabella associazione)
-- `group_id`: FK verso groups
-- `user_id`: FK verso users
-- Chiave primaria composta (group_id, user_id)
+**message_templates**
+- `id`: Primary ID
+- `name`: Template name (max 200 char)
+- `description`: Optional description
+- `group_id`: Group reference (FK)
+- `created_at`: Creation date
+- `updated_at`: Last update
+- `is_active`: Soft delete flag
 
-### Relazioni e Indici
+**template_messages**
+- `id`: Primary ID
+- `template_id`: Template reference (FK)
+- `user_id`: User reference (FK)
+- `message_text`: Personalized message text
+- `order_index`: Order in template
+- `created_at`: Creation date
 
-- **Group ↔ User**: Many-to-Many via group_users
-- **MessageLog**: Collegato a Group e User con FK
-- **Indici**: Su telegram_id, username, status, group_id, user_id per performance
-- **Charset**: utf8mb4 per supporto emoji e caratteri unicode
+### Existing Tables (Updated)
 
-### Configurazioni Performance
+**message_logs** (improved)
+- Now includes detailed `error_message`
+- `telegram_message_id` for Telegram tracking
+- Better indexes for filter performance
 
-```python
-SQLALCHEMY_ENGINE_OPTIONS = {
-    'pool_pre_ping': True,        # Test connessione prima dell'uso
-    'pool_recycle': 3600,         # Ricicla connessioni ogni ora
-    'pool_size': 10,              # Pool di 10 connessioni
-    'max_overflow': 20,           # Max 20 connessioni extra
-    'connect_args': {
-        'charset': 'utf8mb4',     # Supporto Unicode completo
-        'use_unicode': True
-    }
-}
-``` ID primario
-- `telegram_id`: ID Telegram utente
-- `username`: Username Telegram
-- `first_name`, `last_name`: Nome e cognome
-- `display_name`: Nome di visualizzazione
-- `is_active`: Stato attivo
-- `last_interaction`: Ultima interazione con bot
+**users** (extended)
+- `language_code`: User preferred language
+- `display_name`: Improved display name
+- Optimized indexes for searches
 
-**MessageLog**
-- `id`: ID primario
-- `group_id`: Riferimento al gruppo
-- `user_id`: Riferimento all'utente
-- `message_text`: Testo messaggio
-- `sent_at`: Data/ora invio
-- `status`: Stato (pending, sent, failed)
-- `error_message`: Messaggio errore se fallito
+**groups** (optimized)
+- Relationship with `message_templates`
+- Automatic timestamp updates
+- Improved query performance
 
-### Relazioni
-- **Group ↔ User**: Many-to-Many (un utente può essere in più gruppi)
-- **MessageLog**: Collegato a Group e User
+## Updated API Endpoints
 
-## API Endpoints
+### Template Routes
+- `GET /groups/<id>/templates` - List group templates
+- `POST /groups/<id>/templates/create` - Create new template
+- `GET /groups/<id>/templates/<template_id>` - View template
+- `GET /groups/<id>/templates/<template_id>/load` - Load template into form
+- `POST /groups/<id>/templates/<template_id>/send` - Send template messages
+- `POST /groups/<id>/templates/<template_id>/delete` - Delete template
 
-### Main Routes
-- `GET /` - Dashboard principale
-- `GET /dashboard` - Redirect a dashboard
+### History Routes
+- `GET /groups/<id>/message_history` - History with filters
+- Query params: `status`, `user_id`, `page` for filters and pagination
 
-### Groups Routes
-- `GET /groups/` - Lista tutti i gruppi
-- `POST /groups/create` - Crea nuovo gruppo
-- `GET /groups/<id>` - Dettaglio gruppo
-- `POST /groups/<id>/add_user` - Aggiungi utente a gruppo
-- `POST /groups/<id>/remove_user/<user_id>` - Rimuovi utente da gruppo
-- `POST /groups/<id>/send_messages` - Invia messaggi a gruppo
-- `POST /groups/<id>/delete` - Elimina gruppo
+### Debug Routes
+- `GET /groups/<id>/debug_bot` - Test bot configuration
+- `GET /groups/<id>/test_message/<user_id>` - Test single message
+- `GET /groups/<id>/debug_env` - Debug environment variables
 
-### Telegram Routes
-- `POST /telegram/import_users` - Importa utenti dal bot
-- `POST /telegram/create_user` - Crea utente manuale
-- `GET /telegram/users` - API lista utenti
-- `GET /telegram/test_connection` - Testa connessione bot
+### Language Routes
+- `GET /i18n/set/<language>` - Change interface language
+- Supports: `it`, `en`, `fr`, `de`, `es`
 
-## Funzionalità Avanzate
+## Advanced Features
 
-### Auto-save
-- I messaggi vengono salvati automaticamente nel browser
-- Recupero automatico in caso di chiusura accidentale
-- Pulizia automatica dopo invio riuscito
+### Template Intelligence
+- **Real-time Statistics**: Count filled messages during creation
+- **Smart Preview**: Preview messages before saving
+- **Quick Actions**: Automatic filling for all users
+- **Smart Validation**: Check template completeness before saving
 
-### Validazione
-- Controllo token bot Telegram
-- Validazione form lato client e server
-- Gestione errori con messaggi informativi
+### History Analytics
+- **Success Rates**: Calculate sending success percentage
+- **Combined Filters**: Combine multiple filters for detailed analysis
+- **Export Ready**: Data structure ready for CSV/Excel export
+- **Trend Analysis**: View sending trends over time
 
-### Responsive Design
-- Interfaccia ottimizzata per desktop e mobile
-- Bootstrap 5 per layout responsive
-- CSS personalizzato per miglior UX
+### Performance Optimizations
+- **Efficient Queries**: Optimized indexes for history filters
+- **Smart Pagination**: Progressive loading for large datasets
+- **Session Cache**: User preference storage
+- **Lazy Loading**: Load components only when needed
 
-### Sicurezza
-- Configurazione separata per sviluppo/produzione
-- Gestione errori senza esposizione dati sensibili
-- Validazione input per prevenire XSS
+## Updated Troubleshooting
 
-## Risoluzione Problemi
+### Template Errors
 
-### Errori Comuni
+**"Template not saved"**
+- Verify at least one message is filled
+- Check template name doesn't already exist
+- Ensure group has users
 
-**"Token bot non configurato"**
-- Verifica che il token sia corretto nel file `.env`
-- Assicurati che il file `.env` sia nella directory principale
+**"Template not loaded"**
+- Check template exists and is active
+- Verify group access permissions
+- Refresh page if necessary
 
-**"Errore connessione bot"**
-- Controlla la connessione internet
-- Verifica che il token sia valido su @BotFather
-- Testa manualmente: `https://api.telegram.org/bot<TOKEN>/getMe`
+### History Errors
 
-**"Nessun utente importato"**
-- Gli utenti devono aver interagito con il bot almeno una volta
-- Verifica che il bot non sia bloccato dagli utenti
-- Controlla che il bot abbia permessi di lettura messaggi
+**"Empty history"**
+- Check messages have been sent
+- Verify applied filters (might hide results)
+- Check database connection
 
-### Risoluzione Problemi
+**"Filters not working"**
+- Use "Reset" button to return to complete view
+- Verify selected users have messages
+- Check filtered statuses exist
 
-#### Errori Database MySQL
+### Multilingual Errors
+
+**"Texts not translated"**
+- Verify .mo files are compiled
+- Check language is supported
+- Restart application after translation changes
+
+**"Language change not working"**
+- Check i18n route is registered
+- Verify Flask sessions work
+- Check translation file permissions
+
+### Improved Bot Debug
+
+**Token not found**
+```bash
+# Verify .env file
+cat .env | grep TELEGRAM_BOT_TOKEN
+
+# Manual token test
+curl "https://api.telegram.org/bot<TOKEN>/getMe"
+```
+
+**Messages not arriving**
+```bash
+# Use debug routes
+/groups/{group_id}/debug_env
+/groups/{group_id}/test_message/{user_id}
+
+# Check detailed logs in console
+```
+
+## Backup and Security
+
+### Template Backup
+Templates are saved in `message_templates` and `template_messages`:
+
+```sql
+-- Backup templates only
+mysqldump -u telegram_user -p telegram_manager message_templates template_messages > templates_backup.sql
+
+-- Restore templates
+mysql -u telegram_user -p telegram_manager < templates_backup.sql
+```
+
+### Multilingual Security
+- Translation files protected from direct access
+- Input validation to prevent injection
+- Language parameter sanitization
+
+### Template Performance
+- Optimized indexes for template searches
+- In-memory cache for frequent templates
+- Automatic cleanup of unused templates
+
+## Future Roadmap
+
+### V2.1 (Next)
+- **History Export**: Export messages to CSV/Excel
+- **Shared Templates**: Share templates between groups
+- **Scheduled Messages**: Message sending scheduling
+- **Rich Text Editor**: Advanced message editor
+
+### V2.2 (Future)
+- **Dashboard Analytics**: Advanced charts and metrics
+- **REST API**: Public endpoints for integration
+- **Webhook Support**: Real-time notifications
+- **Mobile App**: Companion app for iOS/Android
+
+### V3.0 (Vision)
+- **Multi-Bot Support**: Multiple bot management
+- **Team Collaboration**: Share groups between users
+- **Advanced Automation**: Automated workflows
+- **Enterprise Features**: SSO, audit logs, compliance
+
+## Common Error Solutions
+
+### Database Connection Issues
 
 **"Can't connect to MySQL server"**
-- Verifica che MySQL sia avviato: `sudo systemctl status mysql`
-- Controlla host e porta nel file `.env`
-- Testa connessione: `mysql -h localhost -u telegram_user -p`
+- Verify MySQL is running: `sudo systemctl status mysql`
+- Check host and port in `.env` file
+- Test connection: `mysql -h localhost -u telegram_user -p`
 
 **"Access denied for user"**
-- Verifica username e password nel file `.env`
-- Controlla permessi utente MySQL:
+- Verify username and password in `.env` file
+- Check MySQL user permissions:
   ```sql
   SHOW GRANTS FOR 'telegram_user'@'localhost';
   ```
-- Ricrea utente se necessario
+- Recreate user if necessary
 
 **"Unknown database 'telegram_manager'"**
-- Esegui `python setup_database.py` per creare il database
-- Oppure crea manualmente:
+- Run `python setup_database.py` to create database
+- Or create manually:
   ```sql
   CREATE DATABASE telegram_manager CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
   ```
 
-**"Table doesn't exist"**
-- Le tabelle vengono create automaticamente al primo avvio
-- Forza creazione:
-  ```python
-  from app import create_app, db
-  app = create_app()
-  with app.app_context():
-      db.create_all()
-  ```
+### Bot Configuration Issues
 
-**Errori charset/encoding**
-- Assicurati che il database usi `utf8mb4`
-- Verifica: `SHOW CREATE DATABASE telegram_manager;`
-- Ricrea con charset corretto se necessario
+**"Bot token not configured"**
+- Verify token is correct in `.env` file
+- Ensure `.env` file is in main directory
+- Check token format: `123456789:ABCdefGHIjklMNOpqrsTUVwxyz`
 
-#### Errori Telegram Bot
+**"Bot connection error"**
+- Check internet connection
+- Verify token is valid with @BotFather
+- Test manually: `https://api.telegram.org/bot<TOKEN>/getMe`
 
-**"Token bot non configurato"**
-- Verifica che il token sia corretto nel file `.env`
-- Assicurati che il file `.env` sia nella directory principale
+**"No users imported"**
+- Users must have interacted with bot at least once
+- Verify bot is not blocked by users
+- Check bot has message reading permissions
 
-**"Errore connessione bot"**
-- Controlla la connessione internet
-- Verifica che il token sia valido su @BotFather
-- Testa manualmente: `https://api.telegram.org/bot<TOKEN>/getMe`
+**"Message sending error"**
+- User might have blocked the bot
+- Verify Telegram ID is correct
+- Check Telegram API rate limits (30 msg/sec)
 
-**"Nessun utente importato"**
-- Gli utenti devono aver interagito con il bot almeno una volta
-- Verifica che il bot non sia bloccato dagli utenti
-- Controlla che il bot abbia permessi di lettura messaggi
+### Performance Optimization
 
-**"Errore invio messaggio"**
-- L'utente potrebbe aver bloccato il bot
-- Verifica che l'ID Telegram sia corretto
-- Controlla rate limits API Telegram (30 msg/sec)
-
-### Backup e Restore
-
-#### Backup Database
-
-```bash
-# Backup completo
-mysqldump -u telegram_user -p telegram_manager > backup_$(date +%Y%m%d_%H%M%S).sql
-
-# Backup solo dati (senza struttura)
-mysqldump -u telegram_user -p --no-create-info telegram_manager > data_backup.sql
-
-# Backup compresso
-mysqldump -u telegram_user -p telegram_manager | gzip > backup.sql.gz
-```
-
-#### Restore Database
-
-```bash
-# Restore completo
-mysql -u telegram_user -p telegram_manager < backup_20250809_143000.sql
-
-# Restore da file compresso
-gunzip < backup.sql.gz | mysql -u telegram_user -p telegram_manager
-```
-
-#### Backup Automatico (Cron)
-
-```bash
-# Aggiungi a crontab (crontab -e)
-# Backup giornaliero alle 2:00
-0 2 * * * /usr/bin/mysqldump -u telegram_user -p'password' telegram_manager > /backups/telegram_$(date +\%Y\%m\%d).sql
-```
-
-### Performance e Ottimizzazione
-
-#### Configurazioni MySQL Consigliate
+#### MySQL Configuration
 
 ```sql
--- my.cnf o my.ini
+-- my.cnf or my.ini
 [mysqld]
 innodb_buffer_pool_size = 256M
 innodb_log_file_size = 64M
@@ -449,158 +495,73 @@ tmp_table_size = 64M
 max_heap_table_size = 64M
 ```
 
-#### Monitoraggio Performance
+#### Query Monitoring
 
 ```sql
--- Query lente
+-- Slow queries
 SHOW PROCESSLIST;
 
--- Statistiche tabelle
+-- Table statistics
 SELECT table_name, table_rows, data_length, index_length 
 FROM information_schema.tables 
 WHERE table_schema = 'telegram_manager';
 
--- Indici utilizzati
+-- Used indexes
 SHOW INDEX FROM users;
 SHOW INDEX FROM groups;
 SHOW INDEX FROM message_logs;
 ```
 
-### Migrazione da SQLite (se necessario)
+## Requirements
 
-Se hai dati esistenti in SQLite:
+### System Requirements
+- **Operating System**: Linux, macOS, Windows
+- **Python**: 3.8+ (recommended 3.9+)
+- **Database**: MySQL 5.7+ or MariaDB 10.2+
+- **Memory**: Minimum 512MB RAM (recommended 1GB+)
+- **Storage**: 100MB + database storage
 
-```python
-# Script di migrazione
-import sqlite3
-import pymysql
-from app import create_app, db
-from app.models import User, Group, MessageLog
-
-def migrate_from_sqlite():
-    # Connetti a SQLite
-    sqlite_conn = sqlite3.connect('instance/database.db')
-    sqlite_conn.row_factory = sqlite3.Row
-    
-    # Connetti a MySQL via Flask
-    app = create_app()
-    with app.app_context():
-        # Migra utenti
-        sqlite_users = sqlite_conn.execute('SELECT * FROM user').fetchall()
-        for row in sqlite_users:
-            user = User(
-                telegram_id=row['telegram_id'],
-                username=row['username'],
-                first_name=row['first_name'],
-                # ... altri campi
-            )
-            db.session.add(user)
-        
-        # Migra gruppi e messaggi...
-        db.session.commit()
+### Python Dependencies
+```
+Flask==2.3.3
+Flask-SQLAlchemy==3.0.5
+Flask-Babel==3.1.0
+python-dotenv==1.0.0
+PyMySQL==1.1.0
+requests==2.31.0
 ```
 
-### Sicurezza
+### Browser Support
+- **Chrome**: 80+
+- **Firefox**: 75+
+- **Safari**: 13+
+- **Edge**: 80+
 
-#### Configurazioni Produzione
+## Security Considerations
 
-```python
-# config.py - ProductionConfig
-class ProductionConfig(Config):
-    DEBUG = False
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
-    
-    # SSL/TLS per MySQL
-    SQLALCHEMY_ENGINE_OPTIONS = {
-        'connect_args': {
-            'sslmode': 'require',
-            'sslcert': '/path/to/client-cert.pem',
-            'sslkey': '/path/to/client-key.pem',
-            'sslrootcert': '/path/to/ca-cert.pem'
-        }
-    }
-```
+### Production Deployment
+- Change `SECRET_KEY` to a strong random value
+- Use environment variables for all sensitive data
+- Enable HTTPS/SSL for web traffic
+- Restrict database access to application only
+- Regular security updates for dependencies
 
-#### Permessi MySQL Minimi
+### Bot Security
+- Keep bot token confidential
+- Use webhook instead of polling for production
+- Implement rate limiting for API calls
+- Monitor bot usage and logs
 
-```sql
--- Crea utente con permessi limitati per produzione
-CREATE USER 'telegram_app'@'%' IDENTIFIED BY 'strong_password';
-GRANT SELECT, INSERT, UPDATE, DELETE ON telegram_manager.* TO 'telegram_app'@'%';
-FLUSH PRIVILEGES;
-```
-
-### Monitoring e Logging
-
-#### Log Applicazione
-
-```python
-# Aggiungi a config.py
-import logging
-from logging.handlers import RotatingFileHandler
-
-if not app.debug:
-    if not os.path.exists('logs'):
-        os.mkdir('logs')
-    file_handler = RotatingFileHandler('logs/telegram_app.log', 
-                                     maxBytes=10240, backupCount=10)
-    file_handler.setFormatter(logging.Formatter(
-        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
-    file_handler.setLevel(logging.INFO)
-    app.logger.addHandler(file_handler)
-```
-
-#### Monitoring MySQL
-
-```bash
-# Tool per monitorare MySQL
-sudo apt install mytop
-mytop -u telegram_user -p
-
-# Log query lente
-# Aggiungi a my.cnf:
-# slow_query_log = 1
-# slow_query_log_file = /var/log/mysql/slow.log
-# long_query_time = 2
-```
-
-### Scalabilità
-
-Per applicazioni con molti utenti considera:
-
-#### Database Replication
-
-```sql
--- Master-Slave setup per read scaling
--- Master per scritture, Slave per letture
-```
-
-#### Connection Pooling
-
-```python
-# Configurazione pool avanzata
-SQLALCHEMY_ENGINE_OPTIONS = {
-    'pool_size': 20,
-    'max_overflow': 50,
-    'pool_pre_ping': True,
-    'pool_recycle': 3600,
-}
-```
-
-#### Caching
-
-```python
-# Redis per cache sessioni
-pip install redis flask-caching
-
-# config.py
-CACHE_TYPE = 'redis'
-CACHE_REDIS_URL = 'redis://localhost:6379/0'
-```
+### Data Protection
+- Regular database backups
+- Encrypt sensitive data at rest
+- Implement proper access controls
+- Log security events
 
 ---
 
-**Versione**: 1.0.0  
+**Version**: 2.0.0  
 **Database**: MySQL 5.7+ / MariaDB 10.2+  
-**Ultimo aggiornamento**: Agosto 2025  
-**Compatibilità**: Python 3.8+, Flask 2.3+, Bootstrap 5
+**Last Updated**: August 2025  
+**Compatibility**: Python 3.8+, Flask 2.3+, Bootstrap 5  
+**New Features**: Message Templates, Advanced History, Multilingual Support

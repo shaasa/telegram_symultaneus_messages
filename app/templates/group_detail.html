@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ group.name }} - Telegram Group Manager{% endblock %}
+{% block title %}{{ group.name }} - {{ _('Telegram Group Manager') }}{% endblock %}
 
 {% block content %}
 <div class="row">
@@ -14,10 +14,10 @@
             </div>
             <div>
                 <a href="{{ url_for('groups.list_groups') }}" class="btn btn-outline-secondary me-2">
-                    Torna ai Gruppi
+                    {{ _('Torna ai Gruppi') }}
                 </a>
                 <button class="btn btn-danger" onclick="confirmDelete({{ group.id }}, '{{ group.name }}')">
-                    Elimina Gruppo
+                    {{ _('Elimina Gruppo') }}
                 </button>
             </div>
         </div>
@@ -30,7 +30,7 @@
         <div class="card bg-primary text-white">
             <div class="card-body text-center">
                 <h3>{{ group.users|length }}</h3>
-                <p class="mb-0">Utenti nel Gruppo</p>
+                <p class="mb-0">{{ _('Utenti nel Gruppo') }}</p>
             </div>
         </div>
     </div>
@@ -38,7 +38,7 @@
         <div class="card bg-success text-white">
             <div class="card-body text-center">
                 <h3>{{ group.created_at.strftime('%d/%m/%Y') }}</h3>
-                <p class="mb-0">Data Creazione</p>
+                <p class="mb-0">{{ _('Data Creazione') }}</p>
             </div>
         </div>
     </div>
@@ -46,11 +46,69 @@
         <div class="card bg-info text-white">
             <div class="card-body text-center">
                 <h3>{{ available_users|length }}</h3>
-                <p class="mb-0">Utenti Disponibili</p>
+                <p class="mb-0">{{ _('Utenti Disponibili') }}</p>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Sezione Template e Cronologia -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-tools"></i> {{ _('Strumenti Avanzati') }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-template"></i> {{ _('Template Messaggi') }}</h6>
+                        <p class="text-muted small mb-2">{{ _('Prepara e salva liste di messaggi per uso futuro') }}</p>
+                        <div class="btn-group w-100" role="group">
+                            <a href="{{ url_for('groups.list_templates', group_id=group.id) }}" class="btn btn-outline-info">
+                                <i class="fas fa-list"></i> {{ _('Vedi Template') }}
+                            </a>
+                            <a href="{{ url_for('groups.create_template', group_id=group.id) }}" class="btn btn-info">
+                                <i class="fas fa-plus"></i> {{ _('Nuovo Template') }}
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-history"></i> {{ _('Cronologia') }}</h6>
+                        <p class="text-muted small mb-2">{{ _('Visualizza messaggi inviati e statistiche') }}</p>
+                        <a href="{{ url_for('groups.message_history', group_id=group.id) }}" class="btn btn-outline-primary btn-block w-100">
+                            <i class="fas fa-history"></i> {{ _('Cronologia Messaggi') }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alert per template caricato (se presente) -->
+{% if template and template_data %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-info-circle"></i>
+                    <strong>{{ _('Template caricato:') }}</strong> {{ template.name }}
+                    {% if template.description %}
+                    <br><small>{{ template.description }}</small>
+                    {% endif %}
+                </div>
+                <div>
+                    <a href="{{ url_for('groups.group_detail', group_id=group.id) }}" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-times"></i> {{ _('Annulla template') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 
 <!-- Add Users Section -->
 {% if available_users %}
@@ -58,14 +116,14 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h5 class="card-title mb-0">Aggiungi Utenti al Gruppo</h5>
+                <h5 class="card-title mb-0">{{ _('Aggiungi Utenti al Gruppo') }}</h5>
             </div>
             <div class="card-body">
                 <form action="{{ url_for('groups.add_user_to_group', group_id=group.id) }}" method="post">
                     <div class="row">
                         <div class="col-md-8">
                             <select class="form-select" name="user_id" required>
-                                <option value="">Seleziona un utente...</option>
+                                <option value="">{{ _('Seleziona un utente...') }}</option>
                                 {% for user in available_users %}
                                 <option value="{{ user.id }}">
                                     {{ user.full_name }}
@@ -75,7 +133,7 @@
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <button type="submit" class="btn btn-success w-100">Aggiungi al Gruppo</button>
+                            <button type="submit" class="btn btn-success w-100">{{ _('Aggiungi al Gruppo') }}</button>
                         </div>
                     </div>
                 </form>
@@ -91,7 +149,7 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h5 class="card-title mb-0">Utenti e Messaggi</h5>
+                <h5 class="card-title mb-0">{{ _('Utenti e Messaggi') }}</h5>
             </div>
             <div class="card-body">
                 <form action="{{ url_for('groups.send_messages', group_id=group.id) }}" method="post" id="messagesForm">
@@ -112,29 +170,29 @@
                                     {% if user.last_interaction %}
                                     <p class="card-text">
                                         <small class="text-muted">
-                                            Ultimo: {{ user.last_interaction.strftime('%d/%m/%Y') }}
+                                            {{ _('Ultimo:') }} {{ user.last_interaction.strftime('%d/%m/%Y') }}
                                         </small>
                                     </p>
                                     {% endif %}
                                     <button type="button" class="btn btn-sm btn-outline-danger w-100"
                                             onclick="removeUser({{ group.id }}, {{ user.id }}, '{{ user.full_name }}')">
-                                        Rimuovi
+                                        {{ _('Rimuovi') }}
                                     </button>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-9">
                             <div class="form-group">
-                                <label for="message_{{ user.id }}" class="form-label">Messaggio per {{ user.full_name }}</label>
+                                <label for="message_{{ user.id }}" class="form-label">{{ _('Messaggio per') }} {{ user.full_name }}</label>
                                 <textarea class="form-control message-textarea"
                                           id="message_{{ user.id }}"
                                           name="message_{{ user.id }}"
                                           rows="4"
-                                          placeholder="Scrivi il messaggio personalizzato per questo utente..."></textarea>
+                                          placeholder="{{ _('Scrivi il messaggio personalizzato per questo utente...') }}">{% if template_data and template_data[user.id] %}{{ template_data[user.id] }}{% endif %}</textarea>
                                 <div class="form-text">
-                                    <span class="char-count" data-target="message_{{ user.id }}">0</span>/4096 caratteri
-                                    <span class="char-warning d-none text-warning ms-2">⚠️ Messaggio lungo</span>
-                                    <span class="char-error d-none text-danger ms-2">❌ Troppo lungo!</span>
+                                    <span class="char-count" data-target="message_{{ user.id }}">0</span>/4096 {{ _('caratteri') }}
+                                    <span class="char-warning d-none text-warning ms-2">⚠️ {{ _('Messaggio lungo') }}</span>
+                                    <span class="char-error d-none text-danger ms-2">❌ {{ _('Troppo lungo!') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -147,14 +205,14 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <button type="button" class="btn btn-outline-primary" onclick="fillAllMessages()">
-                                        Compila Tutti con Stesso Messaggio
+                                        {{ _('Compila Tutti con Stesso Messaggio') }}
                                     </button>
                                     <button type="button" class="btn btn-outline-secondary" onclick="clearAllMessages()">
-                                        Pulisci Tutti
+                                        {{ _('Pulisci Tutti') }}
                                     </button>
                                 </div>
                                 <button type="submit" class="btn btn-success btn-lg" onclick="return confirmSendMessages()">
-                                    Invia Messaggi
+                                    {{ _('Invia Messaggi') }}
                                 </button>
                             </div>
                         </div>
@@ -172,19 +230,19 @@
                 <div class="mb-4">
                     <span class="display-1">👥</span>
                 </div>
-                <h3>Nessun utente nel gruppo</h3>
+                <h3>{{ _('Nessun utente nel gruppo') }}</h3>
                 <p class="text-muted mb-4">
-                    Aggiungi utenti al gruppo per poter inviare messaggi personalizzati.
+                    {{ _('Aggiungi utenti al gruppo per poter inviare messaggi personalizzati.') }}
                 </p>
                 {% if available_users %}
                 <p class="text-muted">
-                    Ci sono {{ available_users|length }} utenti disponibili da aggiungere.
+                    {{ _('Ci sono') }} {{ available_users|length }} {{ _('utenti disponibili da aggiungere.') }}
                 </p>
                 {% else %}
                 <p class="text-muted">
-                    Non ci sono utenti disponibili.
-                    <a href="#" onclick="importUsers()">Importa utenti dal bot</a>
-                    o <a href="#" data-bs-toggle="modal" data-bs-target="#createUserModal">crea un nuovo utente</a>.
+                    {{ _('Non ci sono utenti disponibili.') }}
+                    <a href="#" onclick="importUsers()">{{ _('Importa utenti dal bot') }}</a>
+                    {{ _('o') }} <a href="#" data-bs-toggle="modal" data-bs-target="#createUserModal">{{ _('crea un nuovo utente') }}</a>.
                 </p>
                 {% endif %}
             </div>
@@ -192,30 +250,25 @@
     </div>
 </div>
 {% endif %}
-</div>
-</div>
-</div>
-</div>
-
 
 <!-- Modal for Delete Group Confirmation -->
 <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Conferma Eliminazione Gruppo</h5>
+                <h5 class="modal-title">{{ _('Conferma Eliminazione Gruppo') }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p>Sei sicuro di voler eliminare il gruppo <strong id="deleteGroupName"></strong>?</p>
+                <p>{{ _('Sei sicuro di voler eliminare il gruppo') }} <strong id="deleteGroupName"></strong>?</p>
                 <p class="text-danger">
-                    <small>Questa azione eliminerà anche tutti i log dei messaggi associati al gruppo e non può essere annullata.</small>
+                    <small>{{ _('Questa azione eliminerà anche tutti i log dei messaggi associati al gruppo e non può essere annullata.') }}</small>
                 </p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Annulla') }}</button>
                 <form id="deleteForm" method="post" style="display: inline;">
-                    <button type="submit" class="btn btn-danger">Elimina Definitivamente</button>
+                    <button type="submit" class="btn btn-danger">{{ _('Elimina Definitivamente') }}</button>
                 </form>
             </div>
         </div>
@@ -227,19 +280,19 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Rimuovi Utente dal Gruppo</h5>
+                <h5 class="modal-title">{{ _('Rimuovi Utente dal Gruppo') }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p>Sei sicuro di voler rimuovere <strong id="removeUserName"></strong> dal gruppo?</p>
+                <p>{{ _('Sei sicuro di voler rimuovere') }} <strong id="removeUserName"></strong> {{ _('dal gruppo?') }}</p>
                 <p class="text-muted">
-                    <small>L'utente potrà essere aggiunto nuovamente in seguito.</small>
+                    <small>{{ _('L\'utente potrà essere aggiunto nuovamente in seguito.') }}</small>
                 </p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Annulla') }}</button>
                 <form id="removeUserForm" method="post" style="display: inline;">
-                    <button type="submit" class="btn btn-warning">Rimuovi dal Gruppo</button>
+                    <button type="submit" class="btn btn-warning">{{ _('Rimuovi dal Gruppo') }}</button>
                 </form>
             </div>
         </div>
@@ -251,23 +304,23 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Messaggio per Tutti gli Utenti</h5>
+                <h5 class="modal-title">{{ _('Messaggio per Tutti gli Utenti') }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label for="globalMessage" class="form-label">Messaggio da inviare a tutti</label>
-                    <textarea class="form-control" id="globalMessage" rows="4" placeholder="Scrivi il messaggio che verrà copiato in tutti i campi..."></textarea>
+                    <label for="globalMessage" class="form-label">{{ _('Messaggio da inviare a tutti') }}</label>
+                    <textarea class="form-control" id="globalMessage" rows="4" placeholder="{{ _('Scrivi il messaggio che verrà copiato in tutti i campi...') }}"></textarea>
                     <div class="form-text">
-                        <span id="globalCharCount">0</span>/4096 caratteri
-                        <span id="globalWarning" class="d-none text-warning ms-2">⚠️ Messaggio lungo</span>
-                        <span id="globalError" class="d-none text-danger ms-2">❌ Troppo lungo!</span>
+                        <span id="globalCharCount">0</span>/4096 {{ _('caratteri') }}
+                        <span id="globalWarning" class="d-none text-warning ms-2">⚠️ {{ _('Messaggio lungo') }}</span>
+                        <span id="globalError" class="d-none text-danger ms-2">❌ {{ _('Troppo lungo!') }}</span>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
-                <button type="button" class="btn btn-primary" onclick="applyGlobalMessage()">Applica a Tutti</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Annulla') }}</button>
+                <button type="button" class="btn btn-primary" onclick="applyGlobalMessage()">{{ _('Applica a Tutti') }}</button>
             </div>
         </div>
     </div>
@@ -369,7 +422,7 @@
     }
 
     function clearAllMessages() {
-        if (confirm('Sei sicuro di voler cancellare tutti i messaggi?')) {
+        if (confirm('{{ _("Sei sicuro di voler cancellare tutti i messaggi?") }}')) {
             const textareas = document.querySelectorAll('.message-textarea');
             textareas.forEach(textarea => {
                 textarea.value = '';
@@ -389,11 +442,11 @@
         });
 
         if (messageCount === 0) {
-            alert('Inserisci almeno un messaggio prima di inviare.');
+            alert('{{ _("Inserisci almeno un messaggio prima di inviare.") }}');
             return false;
         }
 
-        return confirm(`Sei sicuro di voler inviare ${messageCount} messaggi? Questa azione non può essere annullata.`);
+        return confirm('{{ _("Sei sicuro di voler inviare") }} ' + messageCount + ' {{ _("messaggi? Questa azione non può essere annullata.") }}');
     }
 </script>
 {% endblock %}

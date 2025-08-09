@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Telegram Group Manager{% endblock %}</title>
+    <title>{% block title %}{{ _('Telegram Group Manager') }}{% endblock %}</title>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -16,7 +16,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
         <a class="navbar-brand" href="{{ url_for('main.index') }}">
-            <strong>Telegram Group Manager</strong>
+            <strong>{{ _('Telegram Group Manager') }}</strong>
         </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -26,25 +26,42 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('main.index') }}">Dashboard</a>
+                    <a class="nav-link" href="{{ url_for('main.index') }}">{{ _('Dashboard') }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('groups.list_groups') }}">Gruppi</a>
+                    <a class="nav-link" href="{{ url_for('groups.list_groups') }}">{{ _('Gruppi') }}</a>
                 </li>
             </ul>
 
             <ul class="navbar-nav">
-                <li class="nav-item dropdown">
+                <!-- Language Selector -->
+                <li class="nav-item dropdown me-3">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        Telegram
+                        🌍 {{ get_locale().upper() }}
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#" onclick="testConnection()">Testa Connessione</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="importUsers()">Importa Utenti</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="debugUpdates()">Debug Updates</a></li>
+                        {% for code, name in config.LANGUAGES.items() %}
+                        <li>
+                            <a class="dropdown-item {% if get_locale() == code %}active{% endif %}"
+                               href="{{ url_for('i18n.set_language', language=code) }}">
+                                {{ name }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        {{ _('Telegram') }}
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="testConnection()">{{ _('Testa Connessione') }}</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="importUsers()">{{ _('Importa Utenti') }}</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="debugUpdates()">{{ _('Debug Updates') }}</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createUserModal">Crea Utente</a></li>
-                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addByChatIdModal">Aggiungi da Chat ID</a></li>
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createUserModal">{{ _('Crea Utente') }}</a></li>
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addByChatIdModal">{{ _('Aggiungi da Chat ID') }}</a></li>
                     </ul>
                 </li>
             </ul>
@@ -154,7 +171,7 @@
 <!-- Footer -->
 <footer class="bg-light mt-5 py-4">
     <div class="container text-center text-muted">
-        <p>&copy; 2025 Telegram Group Manager - Sviluppato per uso locale</p>
+        <p>&copy; 2025 {{ _('Telegram Group Manager') }} - {{ _('Sviluppato per uso locale') }}</p>
     </div>
 </footer>
 

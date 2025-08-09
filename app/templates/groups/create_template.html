@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Nuovo Template') }} - {{ group.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header della pagina -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="fas fa-plus-circle"></i> {{ _('Nuovo Template Messaggi') }}</h2>
+                    <p class="text-muted mb-0">{{ _('Gruppo:') }} <strong>{{ group.name }}</strong> ({{ group.users|length }} {{ _('utenti') }})</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('groups.list_templates', group_id=group.id) }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> {{ _('Torna ai Template') }}
+                    </a>
+                </div>
+            </div>
+
+            <!-- Form creazione template -->
+            <form method="POST" id="ct_templateForm">
+                <div class="row">
+                    <!-- Informazioni template -->
+                    <div class="col-md-4">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-info-circle"></i> {{ _('Informazioni Template') }}</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="ct_template_name">{{ _('Nome Template') }} *</label>
+                                    <input type="text"
+                                           class="form-control"
+                                           id="ct_template_name"
+                                           name="template_name"
+                                           required
+                                           placeholder="{{ _('Es: Promemoria settimanale') }}">
+                                    <small class="form-text text-muted">{{ _('Scegli un nome descrittivo per ricordare questo template') }}</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="ct_template_description">{{ _('Descrizione') }}</label>
+                                    <textarea class="form-control"
+                                              id="ct_template_description"
+                                              name="template_description"
+                                              rows="3"
+                                              placeholder="{{ _('Descrizione opzionale del template...') }}"></textarea>
+                                </div>
+
+                                <!-- Statistiche -->
+                                <div class="mt-4">
+                                    <h6>{{ _('Statistiche:') }}</h6>
+                                    <ul class="list-unstyled">
+                                        <li><i class="fas fa-users text-info"></i> <span id="ct_userCount">{{ group.users|length }}</span> {{ _('utenti nel gruppo') }}</li>
+                                        <li><i class="fas fa-envelope text-primary"></i> <span id="ct_messageCount">0</span> {{ _('messaggi compilati') }}</li>
+                                        <li><i class="fas fa-percentage text-success"></i> <span id="ct_completionRate">0%</span> {{ _('completamento') }}</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Azioni rapide -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">{{ _('Azioni Rapide') }}</h6>
+                            </div>
+                            <div class="card-body">
+                                <button type="button" class="btn btn-outline-info btn-sm btn-block" onclick="ct_fillAllSame()">
+                                    <i class="fas fa-copy"></i> {{ _('Stesso messaggio per tutti') }}
+                                </button>
+                                <button type="button" class="btn btn-outline-warning btn-sm btn-block" onclick="ct_clearAll()">
+                                    <i class="fas fa-eraser"></i> {{ _('Cancella tutti i messaggi') }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Messaggi per utenti -->
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-users"></i> {{ _('Messaggi per Utenti') }}</h5>
+                            </div>
+                            <div class="card-body">
+                                {% if group.users %}
+                                {% for user in group.users %}
+                                <div class="form-group border-bottom pb-3 mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label for="ct_message_{{ user.id }}" class="mb-0">
+                                            <i class="fas fa-user text-primary"></i>
+                                            <strong>{{ user.full_name }}</strong>
+                                            {% if user.username %}
+                                            <small class="text-muted">(@{{ user.username }})</small>
+                                            {% endif %}
+                                        </label>
+                                        <small class="text-muted">ID: {{ user.telegram_id }}</small>
+                                    </div>
+                                    <textarea class="form-control ct-message-textarea"
+                                              id="ct_message_{{ user.id }}"
+                                              name="message_{{ user.id }}"
+                                              rows="3"
+                                              placeholder="{{ _('Scrivi il messaggio per') }} {{ user.full_name }}..."
+                                              onInput="ct_updateStats()"></textarea>
+                                    <small class="text-muted ct-character-count">0 {{ _('caratteri') }}</small>
+                                </div>
+                                {% endfor %}
+                                {% else %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    {{ _('Questo gruppo non ha utenti. Aggiungi degli utenti prima di creare un template.') }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pulsanti azione -->
+                <div class="row mt-4">
+                    <div class="col-12 text-center">
+                        <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+                            <i class="fas fa-times"></i> {{ _('Annulla') }}
+                        </button>
+                        <button type="submit" class="btn btn-success" id="ct_saveBtn" disabled>
+                            <i class="fas fa-save"></i> {{ _('Salva Template') }}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal per messaggio comune -->
+<div class="modal fade" id="ct_commonMessageModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ _('Stesso Messaggio per Tutti') }}</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="ct_commonMessage">{{ _('Messaggio:') }}</label>
+                    <textarea class="form-control" id="ct_commonMessage" rows="4" placeholder="{{ _('Scrivi il messaggio da copiare per tutti gli utenti...') }}"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _('Annulla') }}</button>
+                <button type="button" class="btn btn-primary" onclick="ct_applyCommonMessage()">{{ _('Applica a Tutti') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function ct_updateStats() {
+        const textareas = document.querySelectorAll('.ct-message-textarea');
+        const totalUsers = {{ group.users|length }};
+        let filledMessages = 0;
+
+        textareas.forEach(function(textarea) {
+            // Aggiorna contatore caratteri
+            const charCount = textarea.parentElement.querySelector('.ct-character-count');
+            charCount.textContent = textarea.value.length + ' {{ _("caratteri") }}';
+
+            // Conta messaggi compilati
+            if (textarea.value.trim().length > 0) {
+                filledMessages++;
+            }
+        });
+
+        // Aggiorna statistiche
+        document.getElementById('ct_messageCount').textContent = filledMessages;
+        document.getElementById('ct_completionRate').textContent = Math.round((filledMessages / totalUsers) * 100) + '%';
+
+        // Abilita/disabilita pulsante salva
+        document.getElementById('ct_saveBtn').disabled = filledMessages === 0;
+    }
+
+    function ct_fillAllSame() {
+        $('#ct_commonMessageModal').modal('show');
+    }
+
+    function ct_applyCommonMessage() {
+        const commonMessage = document.getElementById('ct_commonMessage').value;
+        if (commonMessage.trim()) {
+            document.querySelectorAll('.ct-message-textarea').forEach(function(textarea) {
+                textarea.value = commonMessage;
+            });
+            ct_updateStats();
+            $('#ct_commonMessageModal').modal('hide');
+            document.getElementById('ct_commonMessage').value = '';
+        }
+    }
+
+    function ct_clearAll() {
+        if (confirm('{{ _("Sei sicuro di voler cancellare tutti i messaggi?") }}')) {
+            document.querySelectorAll('.ct-message-textarea').forEach(function(textarea) {
+                textarea.value = '';
+            });
+            ct_updateStats();
+        }
+    }
+
+    // Inizializza statistiche al caricamento
+    document.addEventListener('DOMContentLoaded', function() {
+        ct_updateStats();
+    });
+</script>
+{% endblock %}

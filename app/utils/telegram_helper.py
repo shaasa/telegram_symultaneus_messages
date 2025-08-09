@@ -1,3 +1,4 @@
+import os
 import requests
 from flask import current_app
 import logging
@@ -5,39 +6,119 @@ import logging
 logger = logging.getLogger(__name__)
 
 def get_bot_token():
-    """Ottiene il token del bot dalla configurazione"""
-    return current_app.config.get('TELEGRAM_BOT_TOKEN')
+    """
+    Ottiene il token del bot dalle variabili ambiente (.env) o dalla configurazione Flask
+    """
+    # Prima prova dalle variabili ambiente (dal .env)
+    token = os.environ.get('TELEGRAM_BOT_TOKEN')
+
+    if token:
+        logger.info(f"Token trovato in variabili ambiente (lunghezza: {len(token)})")
+        return token
+
+    # Se non trovato, prova dalla configurazione Flask (fallback)
+    try:
+        token = current_app.config.get('TELEGRAM_BOT_TOKEN')
+        if token:
+            logger.info(f"Token trovato in config Flask (lunghezza: {len(token)})")
+            return token
+    except RuntimeError:
+        # Non siamo in un contesto Flask applicativo
+        logger.warning("Nessun contesto Flask disponibile")
+
+    # Se non trovato in nessun posto
+    logger.error("TELEGRAM_BOT_TOKEN non trovato né in variabili ambiente né in config Flask")
+    return None
 
 def test_bot_connection():
-    """Testa la connessione con il bot Telegram"""
+    """
+    Testa la connessione con il bot Telegram
+
+    Returns:
+        dict: {
+            'success': bool,
+            'bot_info': dict|None,
+            'error': str|None
+        }
+    """
     token = get_bot_token()
     if not token:
-        logger.error("Token del bot Telegram non configurato")
-        return False
+        error_msg = "Token del bot Telegram non configurato"
+        logger.error(error_msg)
+        return {
+            'success': False,
+            'bot_info': None,
+            'error': error_msg
+        }
 
     try:
         url = f"https://api.telegram.org/bot{token}/getMe"
+        logger.info("Test connessione bot...")
         response = requests.get(url, timeout=10)
+
+        logger.info(f"Status code test bot: {response.status_code}")
+        logger.info(f"Response test bot: {response.text}")
 
         if response.status_code == 200:
             data = response.json()
             if data.get('ok'):
-                logger.info(f"Bot connesso: {data['result']['username']}")
-                return True
-
-        logger.error(f"Errore nella connessione: {response.text}")
-        return False
+                bot_info = data['result']
+                logger.info(f"✅ Bot connesso: @{bot_info.get('username', 'N/A')}")
+                return {
+                    'success': True,
+                    'bot_info': bot_info,
+                    'error': None
+                }
+            else:
+                error_msg = f"Errore API: {data.get('description', 'Errore sconosciuto')}"
+                logger.error(f"❌ {error_msg}")
+                return {
+                    'success': False,
+                    'bot_info': None,
+                    'error': error_msg
+                }
+        else:
+            error_msg = f"HTTP {response.status_code}: {response.text}"
+            logger.error(f"❌ Errore connessione: {error_msg}")
+            return {
+                'success': False,
+                'bot_info': None,
+                'error': error_msg
+            }
 
     except Exception as e:
-        logger.error(f"Errore nel test di connessione: {str(e)}")
-        return False
+        error_msg = f"Errore nel test di connessione: {str(e)}"
+        logger.error(f"❌ {error_msg}", exc_info=True)
+        return {
+            'success': False,
+            'bot_info': None,
+            'error': error_msg
+        }
+
+# Sostituisci la tua funzione send_telegram_message esistente con questa versione:
 
 def send_telegram_message(chat_id, message_text):
-    """Invia un messaggio Telegram a un utente specifico"""
+    """
+    Invia un messaggio Telegram a un utente specifico
+
+    Returns:
+        dict: {
+            'success': bool,
+            'message_id': str|None,
+            'error': str|None,
+            'error_code': int|None
+        }
+    """
     token = get_bot_token()
     if not token:
-        logger.error("Token del bot Telegram non configurato")
-        return False
+        error_msg = "Token del bot Telegram non configurato"
+        logger.error(error_msg)
+        return {
+            'success': False,
+            'message_id': None,
+            'error': error_msg,
+            'error_code': None
+        }
 
     try:
         url = f"https://api.telegram.org/bot{token}/sendMessage"
@@ -48,23 +129,84 @@ def send_telegram_message(chat_id, message_text):
             'parse_mode': 'HTML'  # Supporta formattazione HTML di base
         }
 
+        logger.info(f"Tentativo invio messaggio a chat_id: {chat_id}")
         response = requests.post(url, json=payload, timeout=30)
+
+        # Log della risposta per debug
+        logger.info(f"Status code: {response.status_code}")
+        logger.info(f"Response body: {response.text}")
 
         if response.status_code == 200:
             data = response.json()
             if data.get('ok'):
-                logger.info(f"Messaggio inviato a {chat_id}")
-                return True
+                message_id = data.get('result', {}).get('message_id')
+                logger.info(f"✅ Messaggio inviato con successo a {chat_id}, message_id: {message_id}")
+                return {
+                    'success': True,
+                    'message_id': str(message_id) if message_id else None,
+                    'error': None,
+                    'error_code': None
+                }
             else:
-                logger.error(f"Errore API Telegram: {data.get('description', 'Errore sconosciuto')}")
-                return False
-        else:
-            logger.error(f"Errore HTTP {response.status_code}: {response.text}")
-            return False
+                # Errore API Telegram
+                error_code = data.get('error_code')
+                error_description = data.get('description', 'Errore API Telegram sconosciuto')
+                full_error = f"API Error {error_code}: {error_description}"
 
+                logger.error(f"❌ Errore API Telegram per {chat_id}: {full_error}")
+                return {
+                    'success': False,
+                    'message_id': None,
+                    'error': full_error,
+                    'error_code': error_code
+                }
+        else:
+            # Errore HTTP
+            try:
+                error_data = response.json()
+                error_description = error_data.get('description', response.text)
+                error_code = error_data.get('error_code')
+            except:
+                error_description = response.text
+                error_code = response.status_code
+
+            full_error = f"HTTP {response.status_code}: {error_description}"
+            logger.error(f"❌ Errore HTTP per {chat_id}: {full_error}")
+
+            return {
+                'success': False,
+                'message_id': None,
+                'error': full_error,
+                'error_code': error_code
+            }
+
+    except requests.exceptions.Timeout:
+        error_msg = "Timeout nella richiesta (30s) - Telegram non risponde"
+        logger.error(f"❌ Timeout per {chat_id}: {error_msg}")
+        return {
+            'success': False,
+            'message_id': None,
+            'error': error_msg,
+            'error_code': None
+        }
+    except requests.exceptions.ConnectionError:
+        error_msg = "Errore di connessione - Impossibile raggiungere Telegram"
+        logger.error(f"❌ Connection error per {chat_id}: {error_msg}")
+        return {
+            'success': False,
+            'message_id': None,
+            'error': error_msg,
+            'error_code': None
+        }
     except Exception as e:
-        logger.error(f"Errore nell'invio del messaggio: {str(e)}")
-        return False
+        error_msg = f"Errore imprevisto: {str(e)}"
+        logger.error(f"❌ Errore generico per {chat_id}: {error_msg}", exc_info=True)
+        return {
+            'success': False,
+            'message_id': None,
+            'error': error_msg,
+            'error_code': None
+        }
 
 def get_bot_users():
     """
