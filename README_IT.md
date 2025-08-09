@@ -1,5 +1,13 @@
 # Telegram Group Manager
 
+## Premessa del Progetto
+
+Questo progetto nasce per una mia esigenza di Dungeon Master di D&D per inviare simultaneamente messaggi ai miei giocatori, preparati precedentemente, ed è stato anche il mio primo esperimento di sviluppo di un intero software generato con l'AI Claude 4. Sono andata per tentativi ma sono soddisfatta del lavoro fin qui svolto, anche se ha ancora ampi margini di miglioramento.
+
+Il software è completamente **AI-generated** e rappresenta un esempio di come l'intelligenza artificiale possa trasformare un'idea specifica in un'applicazione web completa e funzionale.
+
+---
+
 Un'applicazione web avanzata per gestire gruppi di utenti e inviare messaggi personalizzati tramite bot Telegram con supporto per template e cronologia dettagliata.
 
 ## Funzionalità Principali
@@ -113,7 +121,7 @@ telegram-group-manager/
    sudo mysql -u root -p
    
    # Crea utente dedicato
-   CREATE USER 'telegram_user'@'localhost' IDENTIFIED BY 'beatrice';
+   CREATE USER 'telegram_user'@'localhost' IDENTIFIED BY 'your_password';
    
    # Crea database
    CREATE DATABASE telegram_manager CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -152,17 +160,17 @@ telegram-group-manager/
    Modifica il file `.env`:
    ```env
    # Bot Telegram
-   TELEGRAM_BOT_TOKEN=8145077222:AAHsq_buwp90XEAkbAr1kLY04nD6Q2HsFAQ
+   TELEGRAM_BOT_TOKEN=1234567890:ABCdefGHIjklMNOpqrsTUVwxyz
    
    # Database MySQL
    DB_HOST=localhost
    DB_PORT=3306
    DB_NAME=telegram_manager
    DB_USER=telegram_user
-   DB_PASSWORD=beatrice
+   DB_PASSWORD=your_password
    
    # Sicurezza
-   SECRET_KEY=9qo/3ZvJvUkf/85KrIo0XauPV3davTaMIV8O0Rh3Its=
+   SECRET_KEY=your_very_long_random_secret_key_here
    
    # Ambiente
    FLASK_ENV=development
@@ -434,10 +442,134 @@ mysql -u telegram_user -p telegram_manager < templates_backup.sql
 - **Advanced Automation**: Workflow automatizzati
 - **Enterprise Features**: SSO, audit logs, compliance
 
+## Common Error Solutions
+
+### Database Connection Issues
+
+**"Can't connect to MySQL server"**
+- Verify MySQL is running: `sudo systemctl status mysql`
+- Check host and port in `.env` file
+- Test connection: `mysql -h localhost -u telegram_user -p`
+
+**"Access denied for user"**
+- Verify username and password in `.env` file
+- Check MySQL user permissions:
+  ```sql
+  SHOW GRANTS FOR 'telegram_user'@'localhost';
+  ```
+- Recreate user if necessary
+
+**"Unknown database 'telegram_manager'"**
+- Run `python setup_database.py` to create database
+- Or create manually:
+  ```sql
+  CREATE DATABASE telegram_manager CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+  ```
+
+### Bot Configuration Issues
+
+**"Bot token not configured"**
+- Verify token is correct in `.env` file
+- Ensure `.env` file is in main directory
+- Check token format: `123456789:ABCdefGHIjklMNOpqrsTUVwxyz`
+
+**"Bot connection error"**
+- Check internet connection
+- Verify token is valid with @BotFather
+- Test manually: `https://api.telegram.org/bot<TOKEN>/getMe`
+
+**"No users imported"**
+- Users must have interacted with bot at least once
+- Verify bot is not blocked by users
+- Check bot has message reading permissions
+
+**"Message sending error"**
+- User might have blocked the bot
+- Verify Telegram ID is correct
+- Check Telegram API rate limits (30 msg/sec)
+
+### Performance Optimization
+
+#### MySQL Configuration
+
+```sql
+-- my.cnf or my.ini
+[mysqld]
+innodb_buffer_pool_size = 256M
+innodb_log_file_size = 64M
+max_connections = 200
+query_cache_size = 64M
+tmp_table_size = 64M
+max_heap_table_size = 64M
+```
+
+#### Query Monitoring
+
+```sql
+-- Slow queries
+SHOW PROCESSLIST;
+
+-- Table statistics
+SELECT table_name, table_rows, data_length, index_length 
+FROM information_schema.tables 
+WHERE table_schema = 'telegram_manager';
+
+-- Used indexes
+SHOW INDEX FROM users;
+SHOW INDEX FROM groups;
+SHOW INDEX FROM message_logs;
+```
+
+## Requirements
+
+### System Requirements
+- **Operating System**: Linux, macOS, Windows
+- **Python**: 3.8+ (recommended 3.9+)
+- **Database**: MySQL 5.7+ or MariaDB 10.2+
+- **Memory**: Minimum 512MB RAM (recommended 1GB+)
+- **Storage**: 100MB + database storage
+
+### Python Dependencies
+```
+Flask==2.3.3
+Flask-SQLAlchemy==3.0.5
+Flask-Babel==3.1.0
+python-dotenv==1.0.0
+PyMySQL==1.1.0
+requests==2.31.0
+```
+
+### Browser Support
+- **Chrome**: 80+
+- **Firefox**: 75+
+- **Safari**: 13+
+- **Edge**: 80+
+
+## Security Considerations
+
+### Production Deployment
+- Change `SECRET_KEY` to a strong random value
+- Use environment variables for all sensitive data
+- Enable HTTPS/SSL for web traffic
+- Restrict database access to application only
+- Regular security updates for dependencies
+
+### Bot Security
+- Keep bot token confidential
+- Use webhook instead of polling for production
+- Implement rate limiting for API calls
+- Monitor bot usage and logs
+
+### Data Protection
+- Regular database backups
+- Encrypt sensitive data at rest
+- Implement proper access controls
+- Log security events
+
 ---
 
 **Versione**: 2.0.0  
 **Database**: MySQL 5.7+ / MariaDB 10.2+  
 **Ultimo aggiornamento**: Agosto 2025  
 **Compatibilità**: Python 3.8+, Flask 2.3+, Bootstrap 5  
-**Nuove Features**: Template Messaggi, Cronologia Avanzata, Multilingua
+**Nuove Features**: Template Messaggi, Cronologia Avanzata, Supporto Multilingua
