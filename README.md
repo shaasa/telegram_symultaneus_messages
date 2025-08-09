@@ -5,6 +5,9 @@
 This project was born from my need as a D&D Dungeon Master to simultaneously send pre-prepared messages to my players, and it has also been my first experiment in developing an entire software generated with AI Claude 4. I went through trial and error but I'm satisfied with the work done so far, even though it still has ample room for improvement.
 
 The software is completely AI-generated and represents an example of how artificial intelligence can transform a specific idea into a complete and functional web application.
+
+***
+
 An advanced web application for managing user groups and sending personalized messages via Telegram bot with template support and detailed history tracking.
 
 ## Main Features
