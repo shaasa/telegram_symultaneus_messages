@@ -1,0 +1,399 @@
+{% extends "base.html" %}
+
+{% block title %}{{ group.name }} - Telegram Group Manager{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1>{{ group.name }}</h1>
+                {% if group.description %}
+                <p class="text-muted">{{ group.description }}</p>
+                {% endif %}
+            </div>
+            <div>
+                <a href="{{ url_for('groups.list_groups') }}" class="btn btn-outline-secondary me-2">
+                    Torna ai Gruppi
+                </a>
+                <button class="btn btn-danger" onclick="confirmDelete({{ group.id }}, '{{ group.name }}')">
+                    Elimina Gruppo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Group Stats -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h3>{{ group.users|length }}</h3>
+                <p class="mb-0">Utenti nel Gruppo</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h3>{{ group.created_at.strftime('%d/%m/%Y') }}</h3>
+                <p class="mb-0">Data Creazione</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h3>{{ available_users|length }}</h3>
+                <p class="mb-0">Utenti Disponibili</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Users Section -->
+{% if available_users %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Aggiungi Utenti al Gruppo</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('groups.add_user_to_group', group_id=group.id) }}" method="post">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <select class="form-select" name="user_id" required>
+                                <option value="">Seleziona un utente...</option>
+                                {% for user in available_users %}
+                                <option value="{{ user.id }}">
+                                    {{ user.full_name }}
+                                    {% if user.username %}(@{{ user.username }}){% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-success w-100">Aggiungi al Gruppo</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Users and Messages Section -->
+{% if group.users %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Utenti e Messaggi</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('groups.send_messages', group_id=group.id) }}" method="post" id="messagesForm">
+                    {% for user in group.users %}
+                    <div class="row mb-3 user-message-row">
+                        <div class="col-md-3">
+                            <div class="card h-100">
+                                <div class="card-body p-3">
+                                    <h6 class="card-title mb-1">{{ user.full_name }}</h6>
+                                    {% if user.username %}
+                                    <p class="card-text mb-1">
+                                        <small class="text-muted">@{{ user.username }}</small>
+                                    </p>
+                                    {% endif %}
+                                    <p class="card-text">
+                                        <small class="text-muted">ID: {{ user.telegram_id }}</small>
+                                    </p>
+                                    {% if user.last_interaction %}
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            Ultimo: {{ user.last_interaction.strftime('%d/%m/%Y') }}
+                                        </small>
+                                    </p>
+                                    {% endif %}
+                                    <button type="button" class="btn btn-sm btn-outline-danger w-100"
+                                            onclick="removeUser({{ group.id }}, {{ user.id }}, '{{ user.full_name }}')">
+                                        Rimuovi
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="form-group">
+                                <label for="message_{{ user.id }}" class="form-label">Messaggio per {{ user.full_name }}</label>
+                                <textarea class="form-control message-textarea"
+                                          id="message_{{ user.id }}"
+                                          name="message_{{ user.id }}"
+                                          rows="4"
+                                          placeholder="Scrivi il messaggio personalizzato per questo utente..."></textarea>
+                                <div class="form-text">
+                                    <span class="char-count" data-target="message_{{ user.id }}">0</span>/4096 caratteri
+                                    <span class="char-warning d-none text-warning ms-2">⚠️ Messaggio lungo</span>
+                                    <span class="char-error d-none text-danger ms-2">❌ Troppo lungo!</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    {% endfor %}
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <button type="button" class="btn btn-outline-primary" onclick="fillAllMessages()">
+                                        Compila Tutti con Stesso Messaggio
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="clearAllMessages()">
+                                        Pulisci Tutti
+                                    </button>
+                                </div>
+                                <button type="submit" class="btn btn-success btn-lg" onclick="return confirmSendMessages()">
+                                    Invia Messaggi
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <div class="mb-4">
+                    <span class="display-1">👥</span>
+                </div>
+                <h3>Nessun utente nel gruppo</h3>
+                <p class="text-muted mb-4">
+                    Aggiungi utenti al gruppo per poter inviare messaggi personalizzati.
+                </p>
+                {% if available_users %}
+                <p class="text-muted">
+                    Ci sono {{ available_users|length }} utenti disponibili da aggiungere.
+                </p>
+                {% else %}
+                <p class="text-muted">
+                    Non ci sono utenti disponibili.
+                    <a href="#" onclick="importUsers()">Importa utenti dal bot</a>
+                    o <a href="#" data-bs-toggle="modal" data-bs-target="#createUserModal">crea un nuovo utente</a>.
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Modal for Delete Group Confirmation -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Conferma Eliminazione Gruppo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Sei sicuro di voler eliminare il gruppo <strong id="deleteGroupName"></strong>?</p>
+                <p class="text-danger">
+                    <small>Questa azione eliminerà anche tutti i log dei messaggi associati al gruppo e non può essere annullata.</small>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <form id="deleteForm" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Elimina Definitivamente</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Remove User Confirmation -->
+<div class="modal fade" id="removeUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Rimuovi Utente dal Gruppo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Sei sicuro di voler rimuovere <strong id="removeUserName"></strong> dal gruppo?</p>
+                <p class="text-muted">
+                    <small>L'utente potrà essere aggiunto nuovamente in seguito.</small>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <form id="removeUserForm" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-warning">Rimuovi dal Gruppo</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Fill All Messages -->
+<div class="modal fade" id="fillAllModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Messaggio per Tutti gli Utenti</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="globalMessage" class="form-label">Messaggio da inviare a tutti</label>
+                    <textarea class="form-control" id="globalMessage" rows="4" placeholder="Scrivi il messaggio che verrà copiato in tutti i campi..."></textarea>
+                    <div class="form-text">
+                        <span id="globalCharCount">0</span>/4096 caratteri
+                        <span id="globalWarning" class="d-none text-warning ms-2">⚠️ Messaggio lungo</span>
+                        <span id="globalError" class="d-none text-danger ms-2">❌ Troppo lungo!</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-primary" onclick="applyGlobalMessage()">Applica a Tutti</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Character count for textareas
+    document.addEventListener('DOMContentLoaded', function() {
+        // Update character count for all message textareas
+        const textareas = document.querySelectorAll('.message-textarea');
+        textareas.forEach(textarea => {
+            updateCharCount(textarea);
+            textarea.addEventListener('input', function() {
+                updateCharCount(textarea);
+            });
+        });
+
+        // Global message character count
+        const globalMessage = document.getElementById('globalMessage');
+        if (globalMessage) {
+            globalMessage.addEventListener('input', function() {
+                const currentLength = this.value.length;
+                const maxLength = 4096;
+
+                document.getElementById('globalCharCount').textContent = currentLength;
+
+                const counter = document.getElementById('globalCharCount');
+                const warning = document.getElementById('globalWarning');
+                const error = document.getElementById('globalError');
+
+                if (currentLength > maxLength) {
+                    counter.className = 'text-danger fw-bold';
+                    warning.classList.add('d-none');
+                    error.classList.remove('d-none');
+                    this.classList.add('is-invalid');
+                } else if (currentLength > maxLength * 0.8) {
+                    counter.className = 'text-warning fw-bold';
+                    warning.classList.remove('d-none');
+                    error.classList.add('d-none');
+                    this.classList.remove('is-invalid');
+                    this.classList.add('border-warning');
+                } else {
+                    counter.className = 'text-muted';
+                    warning.classList.add('d-none');
+                    error.classList.add('d-none');
+                    this.classList.remove('is-invalid', 'border-warning');
+                }
+            });
+        }
+    });
+
+    function updateCharCount(textarea) {
+        const target = textarea.getAttribute('id');
+        const counter = document.querySelector(`[data-target="${target}"]`);
+        if (counter) {
+            counter.textContent = textarea.value.length;
+        }
+    }
+
+    function confirmDelete(groupId, groupName) {
+        document.getElementById('deleteGroupName').textContent = groupName;
+        document.getElementById('deleteForm').action = `/groups/${groupId}/delete`;
+
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        deleteModal.show();
+    }
+
+    function removeUser(groupId, userId, userName) {
+        document.getElementById('removeUserName').textContent = userName;
+        document.getElementById('removeUserForm').action = `/groups/${groupId}/remove_user/${userId}`;
+
+        const removeModal = new bootstrap.Modal(document.getElementById('removeUserModal'));
+        removeModal.show();
+    }
+
+    function fillAllMessages() {
+        const fillModal = new bootstrap.Modal(document.getElementById('fillAllModal'));
+        fillModal.show();
+    }
+
+    function applyGlobalMessage() {
+        const globalMessage = document.getElementById('globalMessage').value;
+        const textareas = document.querySelectorAll('.message-textarea');
+
+        textareas.forEach(textarea => {
+            textarea.value = globalMessage;
+            updateCharCount(textarea);
+        });
+
+        const fillModal = bootstrap.Modal.getInstance(document.getElementById('fillAllModal'));
+        fillModal.hide();
+
+        // Clear the global message
+        document.getElementById('globalMessage').value = '';
+        document.getElementById('globalCharCount').textContent = '0';
+    }
+
+    function clearAllMessages() {
+        if (confirm('Sei sicuro di voler cancellare tutti i messaggi?')) {
+            const textareas = document.querySelectorAll('.message-textarea');
+            textareas.forEach(textarea => {
+                textarea.value = '';
+                updateCharCount(textarea);
+            });
+        }
+    }
+
+    function confirmSendMessages() {
+        const textareas = document.querySelectorAll('.message-textarea');
+        let messageCount = 0;
+
+        textareas.forEach(textarea => {
+            if (textarea.value.trim() !== '') {
+                messageCount++;
+            }
+        });
+
+        if (messageCount === 0) {
+            alert('Inserisci almeno un messaggio prima di inviare.');
+            return false;
+        }
+
+        return confirm(`Sei sicuro di voler inviare ${messageCount} messaggi? Questa azione non può essere annullata.`);
+    }
+</script>
+{% endblock %}

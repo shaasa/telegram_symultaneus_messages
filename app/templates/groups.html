@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Gruppi - Telegram Group Manager{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Gestione Gruppi</h1>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createGroupModal">
+                Crea Nuovo Gruppo
+            </button>
+        </div>
+    </div>
+</div>
+
+{% if groups %}
+<div class="row">
+    {% for group in groups %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">{{ group.name }}</h5>
+                <span class="badge bg-primary">{{ group.users|length }} utenti</span>
+            </div>
+            <div class="card-body">
+                <p class="card-text">{{ group.description or 'Nessuna descrizione disponibile' }}</p>
+                <p class="card-text">
+                    <small class="text-muted">
+                        Creato il {{ group.created_at.strftime('%d/%m/%Y alle %H:%M') }}
+                    </small>
+                </p>
+            </div>
+            <div class="card-footer">
+                <div class="btn-group w-100" role="group">
+                    <a href="{{ url_for('groups.group_detail', group_id=group.id) }}" class="btn btn-primary">
+                        Gestisci
+                    </a>
+                    <button class="btn btn-outline-danger" onclick="confirmDelete({{ group.id }}, '{{ group.name }}')">
+                        Elimina
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination could be added here if needed -->
+{% if groups|length > 12 %}
+<div class="row">
+    <div class="col-12 text-center">
+        <p class="text-muted">Visualizzati {{ groups|length }} gruppi</p>
+    </div>
+</div>
+{% endif %}
+
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <div class="mb-4">
+                    <span class="display-1">📢</span>
+                </div>
+                <h3>Nessun gruppo creato</h3>
+                <p class="text-muted mb-4">
+                    Non hai ancora creato nessun gruppo. Inizia creando il tuo primo gruppo per gestire i messaggi agli utenti.
+                </p>
+                <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#createGroupModal">
+                    Crea il Primo Gruppo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Modal for Create Group -->
+<div class="modal fade" id="createGroupModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('groups.create_group') }}" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Crea Nuovo Gruppo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="group_name" class="form-label">Nome del Gruppo *</label>
+                        <input type="text" class="form-control" id="group_name" name="name" required>
+                        <div class="form-text">Il nome deve essere univoco</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="group_description" class="form-label">Descrizione</label>
+                        <textarea class="form-control" id="group_description" name="description" rows="3" placeholder="Descrizione opzionale del gruppo"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary">Crea Gruppo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Delete Confirmation -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Conferma Eliminazione</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Sei sicuro di voler eliminare il gruppo <strong id="deleteGroupName"></strong>?</p>
+                <p class="text-danger">
+                    <small>Questa azione eliminerà anche tutti i log dei messaggi associati al gruppo e non può essere annullata.</small>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <form id="deleteForm" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Elimina Definitivamente</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function confirmDelete(groupId, groupName) {
+        document.getElementById('deleteGroupName').textContent = groupName;
+        document.getElementById('deleteForm').action = `/groups/${groupId}/delete`;
+
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        deleteModal.show();
+    }
+
+    // Clear form when modal is closed
+    document.getElementById('createGroupModal').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('group_name').value = '';
+        document.getElementById('group_description').value = '';
+    });
+</script>
+{% endblock %}

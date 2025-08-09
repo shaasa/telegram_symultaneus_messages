@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Telegram Group Manager{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Dashboard</h1>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ total_groups }}</h4>
+                        <p class="card-text">Gruppi Totali</p>
+                    </div>
+                    <div class="align-self-center">
+                        <span class="display-6">📢</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ total_users }}</h4>
+                        <p class="card-text">Utenti Totali</p>
+                    </div>
+                    <div class="align-self-center">
+                        <span class="display-6">👥</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">📨</h4>
+                        <p class="card-text">Messaggi Inviati</p>
+                    </div>
+                    <div class="align-self-center">
+                        <small>Oggi</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">🤖</h4>
+                        <p class="card-text">Bot Status</p>
+                    </div>
+                    <div class="align-self-center">
+                        <span id="bot-status" class="badge bg-secondary">Test</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Azioni Rapide</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#createGroupModal">
+                            Crea Nuovo Gruppo
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <button class="btn btn-success w-100" onclick="importUsers()">
+                            Importa Utenti
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <button class="btn btn-info w-100" onclick="testConnection()">
+                            Testa Bot
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('groups.list_groups') }}" class="btn btn-outline-primary w-100">
+                            Vedi Tutti i Gruppi
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Groups -->
+{% if recent_groups %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Gruppi Recenti</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for group in recent_groups %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">{{ group.name }}</h6>
+                            <p class="mb-1 text-muted">{{ group.description or 'Nessuna descrizione' }}</p>
+                            <small class="text-muted">Creato il {{ group.created_at.strftime('%d/%m/%Y alle %H:%M') }}</small>
+                        </div>
+                        <div>
+                            <span class="badge bg-primary rounded-pill me-2">{{ group.users|length }} utenti</span>
+                            <a href="{{ url_for('groups.group_detail', group_id=group.id) }}" class="btn btn-sm btn-outline-primary">
+                                Gestisci
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% if recent_groups|length >= 5 %}
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('groups.list_groups') }}" class="btn btn-outline-primary">
+                        Vedi Tutti i Gruppi
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5>Nessun gruppo creato</h5>
+                <p class="text-muted">Inizia creando il tuo primo gruppo per gestire i messaggi agli utenti.</p>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createGroupModal">
+                    Crea il Primo Gruppo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Modal for Create Group -->
+<div class="modal fade" id="createGroupModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('groups.create_group') }}" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Crea Nuovo Gruppo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="group_name" class="form-label">Nome del Gruppo *</label>
+                        <input type="text" class="form-control" id="group_name" name="name" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="group_description" class="form-label">Descrizione</label>
+                        <textarea class="form-control" id="group_description" name="description" rows="3" placeholder="Descrizione opzionale del gruppo"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary">Crea Gruppo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Test bot status on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        checkBotStatus();
+    });
+
+    function checkBotStatus() {
+        fetch('{{ url_for("telegram.test_connection") }}')
+            .then(response => {
+                const statusBadge = document.getElementById('bot-status');
+                if (response.ok) {
+                    statusBadge.textContent = 'Online';
+                    statusBadge.className = 'badge bg-success';
+                } else {
+                    statusBadge.textContent = 'Offline';
+                    statusBadge.className = 'badge bg-danger';
+                }
+            })
+            .catch(error => {
+                console.error('Error checking bot status:', error);
+                const statusBadge = document.getElementById('bot-status');
+                statusBadge.textContent = 'Error';
+                statusBadge.className = 'badge bg-danger';
+            });
+    }
+</script>
+{% endblock %}
