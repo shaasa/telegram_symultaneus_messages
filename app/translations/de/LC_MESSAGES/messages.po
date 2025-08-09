@@ -1,0 +1,466 @@
+# German translations for PROJECT.
+# Copyright (C) 2025 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-08-09 19:30+0200\n"
+"PO-Revision-Date: 2025-08-09 19:30+0200\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: de\n"
+"Language-Team: de <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: app/templates/base.html:6 app/templates/base.html:19
+#: app/templates/base.html:174 app/templates/group_detail.html:3
+#: app/templates/groups.html:3 app/templates/index.html:3
+msgid "Telegram Group Manager"
+msgstr "Telegram-Gruppenmanager"
+
+#: app/templates/base.html:29 app/templates/index.html:3
+#: app/templates/index.html:8
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#: app/templates/base.html:32 app/templates/groups.html:3
+msgid "Gruppi"
+msgstr "Gruppen"
+
+#: app/templates/base.html:56
+msgid "Telegram"
+msgstr "Telegram"
+
+#: app/templates/base.html:78
+msgid "Testa Connessione"
+msgstr "Verbindung testen"
+
+#: app/templates/base.html:86
+msgid "Importa Utenti"
+msgstr "Benutzer importieren"
+
+#: app/templates/base.html:94
+msgid "Debug Updates"
+msgstr "Debug-Updates"
+
+#: app/templates/base.html:102
+msgid "Crea Utente"
+msgstr "Benutzer erstellen"
+
+#: app/templates/base.html:110
+msgid "Aggiungi da Chat ID"
+msgstr "Aus Chat-ID hinzufügen"
+
+#: app/templates/base.html:170
+msgid "Sviluppato per uso locale"
+msgstr "Für lokalen Gebrauch entwickelt"
+
+#: app/templates/group_detail.html:3 app/templates/groups.html:3
+msgid "Torna ai Gruppi"
+msgstr "Zurück zu den Gruppen"
+
+#: app/templates/group_detail.html:6
+msgid "Elimina Gruppo"
+msgstr "Gruppe löschen"
+
+#: app/templates/group_detail.html:10
+msgid "Utenti nel Gruppo"
+msgstr "Benutzer in der Gruppe"
+
+#: app/templates/group_detail.html:14
+msgid "Data Creazione"
+msgstr "Erstellungsdatum"
+
+#: app/templates/group_detail.html:22
+msgid "Utenti Disponibili"
+msgstr "Verfügbare Benutzer"
+
+#: app/templates/group_detail.html:27
+msgid "Aggiungi Utenti al Gruppo"
+msgstr "Benutzer zur Gruppe hinzufügen"
+
+#: app/templates/group_detail.html:31
+msgid "Seleziona un utente..."
+msgstr "Benutzer auswählen..."
+
+#: app/templates/group_detail.html:34
+msgid "Aggiungi al Gruppo"
+msgstr "Zur Gruppe hinzufügen"
+
+#: app/templates/group_detail.html:45
+msgid "Utenti e Messaggi"
+msgstr "Benutzer und Nachrichten"
+
+#: app/templates/group_detail.html:50
+msgid "Ultimo:"
+msgstr "Letzter:"
+
+#: app/templates/group_detail.html:58
+msgid "Compila Tutti con Stesso Messaggio"
+msgstr "Alle mit derselben Nachricht ausfüllen"
+
+#: app/templates/group_detail.html:62
+msgid "Pulisci Tutti"
+msgstr "Alle leeren"
+
+#: app/templates/group_detail.html:66
+msgid "Invia Messaggi"
+msgstr "Nachrichten senden"
+
+#: app/templates/group_detail.html:76
+msgid "Conferma Eliminazione Gruppo"
+msgstr "Löschung der Gruppe bestätigen"
+
+#: app/templates/group_detail.html:78
+msgid "Sei sicuro di voler eliminare il gruppo"
+msgstr "Sind Sie sicher, dass Sie die Gruppe löschen möchten"
+
+#: app/templates/group_detail.html:80
+msgid "Annulla"
+msgstr "Abbrechen"
+
+#: app/templates/group_detail.html:81
+msgid "Applica a Tutti"
+msgstr "Auf alle anwenden"
+
+#: app/templates/group_detail.html:82
+msgid "Elimina Definitivamente"
+msgstr "Endgültig löschen"
+
+#: app/templates/group_detail.html:90
+msgid "Rimuovi Utente dal Gruppo"
+msgstr "Benutzer aus der Gruppe entfernen"
+
+#: app/templates/group_detail.html:92
+msgid "Sei sicuro di voler rimuovere"
+msgstr "Sind Sie sicher, dass Sie entfernen möchten"
+
+#: app/templates/group_detail.html:93
+msgid "dal gruppo?"
+msgstr "aus der Gruppe?"
+
+#: app/templates/group_detail.html:95
+msgid "L'utente potrà essere aggiunto nuovamente in seguito."
+msgstr "Der Benutzer kann später erneut hinzugefügt werden."
+
+#: app/templates/group_detail.html:97
+msgid "Rimuovi dal Gruppo"
+msgstr "Aus der Gruppe entfernen"
+
+#: app/templates/group_detail.html:110
+msgid "Messaggio per Tutti gli Utenti"
+msgstr "Nachricht an alle Benutzer"
+
+#: app/templates/group_detail.html:114
+msgid "Messaggio da inviare a tutti"
+msgstr "Nachricht an alle senden"
+
+#: app/templates/group_detail.html:116
+msgid "Scrivi il messaggio che verrà copiato in tutti i campi..."
+msgstr "Schreiben Sie die Nachricht, die in alle Felder kopiert wird..."
+
+#: app/templates/group_detail.html:118
+msgid "caratteri"
+msgstr "Zeichen"
+
+#: app/templates/group_detail.html:122
+msgid "Messaggio lungo"
+msgstr "Lange Nachricht"
+
+#: app/templates/group_detail.html:123
+msgid "Troppo lungo!"
+msgstr "Zu lang!"
+
+#: app/templates/groups.html:3
+msgid "Gestione Gruppi"
+msgstr "Gruppenverwaltung"
+
+#: app/templates/groups.html:6
+msgid "Crea Nuovo Gruppo"
+msgstr "Neue Gruppe erstellen"
+
+#: app/templates/groups.html:14
+msgid "utenti"
+msgstr "Benutzer"
+
+#: app/templates/groups.html:19
+msgid "Nessuna descrizione disponibile"
+msgstr "Keine Beschreibung verfügbar"
+
+#: app/templates/groups.html:31
+msgid "Creato il"
+msgstr "Erstellt am"
+
+#: app/templates/groups.html:40
+msgid "Gestisci"
+msgstr "Verwalten"
+
+#: app/templates/groups.html:43
+msgid "Elimina"
+msgstr "Löschen"
+
+#: app/templates/groups.html:49
+msgid "Visualizzati"
+msgstr "Angezeigt"
+
+#: app/templates/groups.html:53
+msgid "gruppi"
+msgstr "Gruppen"
+
+#: app/templates/groups.html:66 app/templates/index.html:157
+msgid "Nessun gruppo creato"
+msgstr "Keine Gruppe erstellt"
+
+#: app/templates/groups.html:71 app/templates/index.html:160
+msgid "Crea il Primo Gruppo"
+msgstr "Erste Gruppe erstellen"
+
+#: app/templates/index.html:10
+msgid "Aggiorna"
+msgstr "Aktualisieren"
+
+#: app/templates/index.html:15
+msgid "Ricerca"
+msgstr "Suche"
+
+#: app/templates/index.html:20
+msgid "Filtra per Stato"
+msgstr "Nach Status filtern"
+
+#: app/templates/index.html:25
+msgid "Tutti"
+msgstr "Alle"
+
+#: app/templates/index.html:30
+msgid "Attivi"
+msgstr "Aktiv"
+
+#: app/templates/index.html:35
+msgid "Inattivi"
+msgstr "Inaktiv"
+
+#: app/templates/index.html:42
+msgid "Dettagli"
+msgstr "Details"
+
+#: app/templates/index.html:47
+msgid "Modifica"
+msgstr "Bearbeiten"
+
+#: app/templates/index.html:52
+msgid "Salva"
+msgstr "Speichern"
+
+#: app/templates/index.html:57
+msgid "Chiudi"
+msgstr "Schließen"
+
+#: app/templates/index.html:62
+msgid "Apri"
+msgstr "Öffnen"
+
+#: app/templates/index.html:67
+msgid "Esporta"
+msgstr "Exportieren"
+
+#: app/templates/index.html:72
+msgid "Importa"
+msgstr "Importieren"
+
+#: app/templates/index.html:77
+msgid "Impostazioni"
+msgstr "Einstellungen"
+
+#: app/templates/index.html:82
+msgid "Profilo"
+msgstr "Profil"
+
+#: app/templates/index.html:87
+msgid "Logout"
+msgstr "Abmelden"
+
+#: app/templates/index.html:92
+msgid "Conferma"
+msgstr "Bestätigen"
+
+#: app/templates/index.html:97
+msgid "Annulla Operazione"
+msgstr "Vorgang abbrechen"
+
+#: app/templates/index.html:102
+msgid "Messaggi"
+msgstr "Nachrichten"
+
+#: app/templates/index.html:107
+msgid "Nuovo Messaggio"
+msgstr "Neue Nachricht"
+
+#: app/templates/index.html:112
+msgid "Storico"
+msgstr "Verlauf"
+
+#: app/templates/index.html:117
+msgid "Statistiche"
+msgstr "Statistiken"
+
+#: app/templates/index.html:122
+msgid "Utenti Totali"
+msgstr "Gesamtbenutzer"
+
+#: app/templates/index.html:127
+msgid "Gruppi Totali"
+msgstr "Gesamtgruppen"
+
+#: app/templates/index.html:137
+msgid "Data"
+msgstr "Datum"
+
+#: app/templates/index.html:142
+msgid "Ora"
+msgstr "Uhrzeit"
+
+#: app/templates/index.html:147
+msgid "Esci"
+msgstr "Verlassen"
+
+#: app/templates/index.html:152
+msgid "Lingua"
+msgstr "Sprache"
+
+#: app/templates/index.html:165
+msgid "Password"
+msgstr "Passwort"
+
+#: app/templates/index.html:170
+msgid "Nuova Password"
+msgstr "Neues Passwort"
+
+#: app/templates/index.html:175
+msgid "Conferma Password"
+msgstr "Passwort bestätigen"
+
+#: app/templates/index.html:180
+msgid "Accedi"
+msgstr "Anmelden"
+
+#: app/templates/index.html:185
+msgid "Registrati"
+msgstr "Registrieren"
+
+#: app/templates/index.html:190
+msgid "Nome"
+msgstr "Name"
+
+#: app/templates/index.html:195
+msgid "Cognome"
+msgstr "Nachname"
+
+#: app/templates/index.html:200
+msgid "Email"
+msgstr "E-Mail"
+
+#: app/templates/index.html:205
+msgid "Telefono"
+msgstr "Telefon"
+
+#: app/templates/index.html:210
+msgid "Indirizzo"
+msgstr "Adresse"
+
+#: app/templates/index.html:215
+msgid "Città"
+msgstr "Stadt"
+
+#: app/templates/index.html:220
+msgid "CAP"
+msgstr "PLZ"
+
+#: app/templates/index.html:225
+msgid "Provincia"
+msgstr "Provinz"
+
+#: app/templates/index.html:230
+msgid "Paese"
+msgstr "Land"
+
+#: app/templates/index.html:235
+msgid "Note"
+msgstr "Notizen"
+
+#: app/templates/index.html:240
+msgid "Descrizione"
+msgstr "Beschreibung"
+
+#: app/templates/index.html:245
+msgid "Categoria"
+msgstr "Kategorie"
+
+#: app/templates/index.html:250
+msgid "Tipo"
+msgstr "Typ"
+
+#: app/templates/index.html:255
+msgid "Stato"
+msgstr "Status"
+
+#: app/templates/index.html:260
+msgid "Priorità"
+msgstr "Priorität"
+
+#: app/templates/index.html:265
+msgid "Azione"
+msgstr "Aktion"
+
+#: app/templates/index.html:270
+msgid "Operazioni"
+msgstr "Vorgänge"
+
+#: app/templates/index.html:275
+msgid "File"
+msgstr "Datei"
+
+#: app/templates/index.html:280
+msgid "Carica File"
+msgstr "Datei hochladen"
+
+#: app/templates/index.html:285
+msgid "Scarica"
+msgstr "Herunterladen"
+
+#: app/templates/index.html:290
+msgid "Visualizza"
+msgstr "Anzeigen"
+
+#: app/templates/index.html:295
+msgid "Anteprima"
+msgstr "Vorschau"
+
+#: app/templates/index.html:300
+msgid "Condividi"
+msgstr "Teilen"
+
+#: app/templates/index.html:305
+msgid "Copia"
+msgstr "Kopieren"
+
+#: app/templates/index.html:310
+msgid "Incolla"
+msgstr "Einfügen"
+
+#: app/templates/index.html:315
+msgid "Taglia"
+msgstr "Ausschneiden"
+
+#: app/templates/index.html:320
+msgid "Seleziona Tutto"
+msgstr "Alles auswählen"
+
+#: app/templates/index.html:325
+msgid "Deseleziona Tutto"
+msgstr "Alles abwählen"
