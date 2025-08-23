@@ -65,7 +65,8 @@
                         <h6><i class="fas fa-template"></i> {{ _('Template Messaggi') }}</h6>
                         <p class="text-muted small mb-2">{{ _('Prepara e salva liste di messaggi per uso futuro') }}</p>
                         <div class="btn-group w-100" role="group">
-                            <a href="{{ url_for('groups.list_templates', group_id=group.id) }}" class="btn btn-outline-info">
+                            <a href="{{ url_for('groups.list_templates', group_id=group.id) }}"
+                               class="btn btn-outline-info">
                                 <i class="fas fa-list"></i> {{ _('Vedi Template') }}
                             </a>
                             <a href="{{ url_for('groups.create_template', group_id=group.id) }}" class="btn btn-info">
@@ -76,7 +77,8 @@
                     <div class="col-md-6">
                         <h6><i class="fas fa-history"></i> {{ _('Cronologia') }}</h6>
                         <p class="text-muted small mb-2">{{ _('Visualizza messaggi inviati e statistiche') }}</p>
-                        <a href="{{ url_for('groups.message_history', group_id=group.id) }}" class="btn btn-outline-primary btn-block w-100">
+                        <a href="{{ url_for('groups.message_history', group_id=group.id) }}"
+                           class="btn btn-outline-primary btn-block w-100">
                             <i class="fas fa-history"></i> {{ _('Cronologia Messaggi') }}
                         </a>
                     </div>
@@ -100,7 +102,8 @@
                     {% endif %}
                 </div>
                 <div>
-                    <a href="{{ url_for('groups.group_detail', group_id=group.id) }}" class="btn btn-sm btn-outline-secondary">
+                    <a href="{{ url_for('groups.group_detail', group_id=group.id) }}"
+                       class="btn btn-sm btn-outline-secondary">
                         <i class="fas fa-times"></i> {{ _('Annulla template') }}
                     </a>
                 </div>
@@ -183,14 +186,16 @@
                         </div>
                         <div class="col-md-9">
                             <div class="form-group">
-                                <label for="message_{{ user.id }}" class="form-label">{{ _('Messaggio per') }} {{ user.full_name }}</label>
+                                <label for="direct_message_{{ user.id }}" class="form-label">{{ _('Messaggio per') }} {{
+                                    user.full_name }}</label>
                                 <textarea class="form-control message-textarea"
-                                          id="message_{{ user.id }}"
-                                          name="message_{{ user.id }}"
+                                          id="direct_message_{{ user.id }}"
+                                          name="direct_message_{{ user.id }}"
                                           rows="4"
                                           placeholder="{{ _('Scrivi il messaggio personalizzato per questo utente...') }}">{% if template_data and template_data[user.id] %}{{ template_data[user.id] }}{% endif %}</textarea>
                                 <div class="form-text">
-                                    <span class="char-count" data-target="message_{{ user.id }}">0</span>/4096 {{ _('caratteri') }}
+                                    <span class="char-count" data-target="direct_message_{{ user.id }}">0</span>/4096{{
+                                    _('caratteri') }}
                                     <span class="char-warning d-none text-warning ms-2">⚠️ {{ _('Messaggio lungo') }}</span>
                                     <span class="char-error d-none text-danger ms-2">❌ {{ _('Troppo lungo!') }}</span>
                                 </div>
@@ -207,11 +212,13 @@
                                     <button type="button" class="btn btn-outline-primary" onclick="fillAllMessages()">
                                         {{ _('Compila Tutti con Stesso Messaggio') }}
                                     </button>
-                                    <button type="button" class="btn btn-outline-secondary" onclick="clearAllMessages()">
+                                    <button type="button" class="btn btn-outline-secondary"
+                                            onclick="clearAllMessages()">
                                         {{ _('Pulisci Tutti') }}
                                     </button>
                                 </div>
-                                <button type="submit" class="btn btn-success btn-lg" onclick="return confirmSendMessages()">
+                                <button type="submit" class="btn btn-success btn-lg"
+                                        onclick="return confirmSendMessages()">
                                     {{ _('Invia Messaggi') }}
                                 </button>
                             </div>
@@ -242,7 +249,8 @@
                 <p class="text-muted">
                     {{ _('Non ci sono utenti disponibili.') }}
                     <a href="#" onclick="importUsers()">{{ _('Importa utenti dal bot') }}</a>
-                    {{ _('o') }} <a href="#" data-bs-toggle="modal" data-bs-target="#createUserModal">{{ _('crea un nuovo utente') }}</a>.
+                    {{ _('o') }} <a href="#" data-bs-toggle="modal" data-bs-target="#createUserModal">{{ _('crea un
+                    nuovo utente') }}</a>.
                 </p>
                 {% endif %}
             </div>
@@ -262,7 +270,8 @@
             <div class="modal-body">
                 <p>{{ _('Sei sicuro di voler eliminare il gruppo') }} <strong id="deleteGroupName"></strong>?</p>
                 <p class="text-danger">
-                    <small>{{ _('Questa azione eliminerà anche tutti i log dei messaggi associati al gruppo e non può essere annullata.') }}</small>
+                    <small>{{ _('Questa azione eliminerà anche tutti i log dei messaggi associati al gruppo e non può
+                        essere annullata.') }}</small>
                 </p>
             </div>
             <div class="modal-footer">
@@ -284,7 +293,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p>{{ _('Sei sicuro di voler rimuovere') }} <strong id="removeUserName"></strong> {{ _('dal gruppo?') }}</p>
+                <p>{{ _('Sei sicuro di voler rimuovere') }} <strong id="removeUserName"></strong> {{ _('dal gruppo?') }}
+                </p>
                 <p class="text-muted">
                     <small>{{ _('L\'utente potrà essere aggiunto nuovamente in seguito.') }}</small>
                 </p>
@@ -310,7 +320,8 @@
             <div class="modal-body">
                 <div class="mb-3">
                     <label for="globalMessage" class="form-label">{{ _('Messaggio da inviare a tutti') }}</label>
-                    <textarea class="form-control" id="globalMessage" rows="4" placeholder="{{ _('Scrivi il messaggio che verrà copiato in tutti i campi...') }}"></textarea>
+                    <textarea class="form-control" id="globalMessage" rows="4"
+                              placeholder="{{ _('Scrivi il messaggio che verrà copiato in tutti i campi...') }}"></textarea>
                     <div class="form-text">
                         <span id="globalCharCount">0</span>/4096 {{ _('caratteri') }}
                         <span id="globalWarning" class="d-none text-warning ms-2">⚠️ {{ _('Messaggio lungo') }}</span>
@@ -320,7 +331,9 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Annulla') }}</button>
-                <button type="button" class="btn btn-primary" onclick="applyGlobalMessage()">{{ _('Applica a Tutti') }}</button>
+                <button type="button" class="btn btn-primary" onclick="applyGlobalMessage()">{{ _('Applica a Tutti')
+                    }}
+                </button>
             </div>
         </div>
     </div>

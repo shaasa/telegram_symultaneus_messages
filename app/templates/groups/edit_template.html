@@ -31,22 +31,22 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="template_name"><strong>{{ _('Nome Template') }}</strong> <span class="text-danger">*</span></label>
-                                    <input type="text" 
-                                           class="form-control" 
-                                           id="template_name" 
-                                           name="template_name" 
+                                    <input type="text"
+                                           class="form-control"
+                                           id="template_name"
+                                           name="template_name"
                                            value="{{ template.name }}"
-                                           placeholder="{{ _('Es: Messaggi di Natale') }}" 
+                                           placeholder="{{ _('Es: Messaggi di Natale') }}"
                                            required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="template_description">{{ _('Descrizione (opzionale)') }}</label>
-                                    <input type="text" 
-                                           class="form-control" 
-                                           id="template_description" 
-                                           name="template_description" 
+                                    <input type="text"
+                                           class="form-control"
+                                           id="template_description"
+                                           name="template_description"
                                            value="{{ template.description or '' }}"
                                            placeholder="{{ _('Breve descrizione del template') }}">
                                 </div>
@@ -85,10 +85,10 @@
                                             <label for="message_{{ user.id }}" class="form-label">
                                                 {{ _('Messaggio per') }} {{ user.full_name }}
                                             </label>
-                                            <textarea class="form-control message-textarea" 
-                                                      id="message_{{ user.id }}" 
-                                                      name="message_{{ user.id }}" 
-                                                      rows="4" 
+                                            <textarea class="form-control message-textarea"
+                                                      id="message_{{ template.id }}_{{ user.id }}"
+                                                      name="message_{{ template.id }}_{{ user.id }}"
+                                                      rows="4"
                                                       placeholder="{{ _('Scrivi il messaggio personalizzato per questo utente...') }}"
                                                       onkeyup="updateCharCount({{ user.id }})">{{ existing_messages.get(user.id, '') }}</textarea>
                                             <small class="text-muted">
@@ -165,16 +165,16 @@
         resize: vertical;
         min-height: 100px;
     }
-    
+
     .message-textarea:focus {
         border-color: #007bff;
         box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
     }
-    
+
     .card-header.bg-light {
         background-color: #f8f9fa !important;
     }
-    
+
     #stats-bar {
         z-index: 1030;
     }
@@ -187,7 +187,7 @@
         updateCharCount({{ user.id }});
         {% endfor %}
         updateStats();
-        
+
         // Mostra la barra delle statistiche se ci sono utenti
         {% if group.users %}
         document.getElementById('stats-bar').classList.remove('d-none');
@@ -195,11 +195,11 @@
     });
 
     function updateCharCount(userId) {
-        const textarea = document.getElementById('message_' + userId);
+        const textarea = document.getElementById('message_{{ template.id }}_' + userId);
         const charCount = document.getElementById('char_count_' + userId);
         const length = textarea.value.length;
         charCount.textContent = length;
-        
+
         // Aggiorna le statistiche globali
         updateStats();
     }
@@ -208,7 +208,7 @@
         const textareas = document.querySelectorAll('.message-textarea');
         let filledCount = 0;
         let totalChars = 0;
-        
+
         textareas.forEach(function(textarea) {
             const length = textarea.value.trim().length;
             if (length > 0) {
@@ -216,10 +216,10 @@
                 totalChars += length;
             }
         });
-        
+
         const emptyCount = textareas.length - filledCount;
         const avgChars = filledCount > 0 ? Math.round(totalChars / filledCount) : 0;
-        
+
         document.getElementById('filled-count').textContent = filledCount;
         document.getElementById('empty-count').textContent = emptyCount;
         document.getElementById('total-chars').textContent = totalChars;
@@ -232,7 +232,7 @@
             textareas.forEach(function(textarea) {
                 textarea.value = '';
                 // Aggiorna il contatore caratteri per ogni textarea
-                const userId = textarea.id.replace('message_', '');
+                const userId = textarea.id.replace('message_{{ template.id }}_', '');
                 updateCharCount(userId);
             });
         }
@@ -241,7 +241,7 @@
     // Aggiunge listener a tutte le textarea per aggiornare le statistiche
     document.querySelectorAll('.message-textarea').forEach(function(textarea) {
         textarea.addEventListener('input', function() {
-            const userId = this.id.replace('message_', '');
+            const userId = this.id.replace('message_{{ template.id }}_', '');
             updateCharCount(userId);
         });
     });

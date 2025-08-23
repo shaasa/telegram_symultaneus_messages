@@ -99,7 +99,7 @@ def send_messages(group_id):
     from app.utils.telegram_helper import send_telegram_message
 
     for user in group.users:
-        message_text = request.form.get(f'message_{user.id}', '').strip()
+        message_text = request.form.get(f'direct_message_{user.id}', '').strip()
 
         if not message_text:
             debug_info.append(f"⏭️ {user.full_name}: messaggio vuoto, saltato")
@@ -662,8 +662,9 @@ def debug_environment(group_id):
 
 @groups_bp.route('/<int:group_id>/templates/<int:template_id>/edit', methods=['GET', 'POST'])
 def edit_template(group_id, template_id):
-    """Modifica un template esistente"""
+    """Modifica un template esistente - Versione ottimizzata"""
     from app.models import MessageTemplate, TemplateMessage
+    from datetime import datetime
 
     group = Group.query.get_or_404(group_id)
     template = MessageTemplate.query.filter_by(
@@ -679,7 +680,15 @@ def edit_template(group_id, template_id):
 
         if not template_name:
             flash('Il nome del template è obbligatorio', 'error')
-            return render_template('groups/edit_template.html', group=group, template=template)
+            # CORREZIONE: Prepara existing_messages anche per il caso di errore
+            existing_messages = {
+                msg.user_id: msg.message_text
+                for msg in template.template_messages
+            }
+            return render_template('groups/edit_template.html',
+                                   group=group,
+                                   template=template,
+                                   existing_messages=existing_messages)
 
         # Verifica che non esista già un template con questo nome per il gruppo (escludendo se stesso)
         existing_template = MessageTemplate.query.filter_by(
@@ -690,44 +699,82 @@ def edit_template(group_id, template_id):
 
         if existing_template:
             flash('Esiste già un template con questo nome per questo gruppo', 'error')
-            return render_template('groups/edit_template.html', group=group, template=template)
+            # CORREZIONE: Prepara existing_messages anche per il caso di errore
+            existing_messages = {
+                msg.user_id: msg.message_text
+                for msg in template.template_messages
+            }
+            return render_template('groups/edit_template.html',
+                                   group=group,
+                                   template=template,
+                                   existing_messages=existing_messages)
 
         # Aggiorna il template
         template.name = template_name
         template.description = template_description
+        template.updated_at = datetime.utcnow()
 
-        # Elimina tutti i messaggi esistenti del template
-        TemplateMessage.query.filter_by(template_id=template.id).delete()
-
-        # Salva i nuovi messaggi per ogni utente
+        # MIGLIORAMENTO: Aggiorna i messaggi esistenti invece di eliminarli tutti
         messages_saved = 0
+
         for user in group.users:
-            message_text = request.form.get(f'message_{user.id}', '').strip()
+            # MODIFICA: Usa il nuovo formato dei nomi dei campi
+            field_name = f'message_{template.id}_{user.id}'
+            message_text = request.form.get(field_name, '').strip()
+
+            # Debug del campo letto
+            print(f"DEBUG: Reading field {field_name} = '{message_text[:30]}...'")
+
+            # Cerca il messaggio esistente per questo utente e template specifico
+            existing_message = TemplateMessage.query.filter_by(
+                template_id=template.id,
+                user_id=user.id
+            ).first()
+
             if message_text:
-                template_message = TemplateMessage(
-                    template_id=template.id,
-                    user_id=user.id,
-                    message_text=message_text,
-                    order_index=messages_saved
-                )
-                db.session.add(template_message)
+                if existing_message:
+                    # Aggiorna il messaggio esistente
+                    existing_message.message_text = message_text
+                    existing_message.order_index = messages_saved
+                else:
+                    # Crea nuovo messaggio
+                    new_message = TemplateMessage(
+                        template_id=template.id,
+                        user_id=user.id,
+                        message_text=message_text,
+                        order_index=messages_saved
+                    )
+                    db.session.add(new_message)
                 messages_saved += 1
+            else:
+                # Se il messaggio è vuoto, elimina quello esistente se presente
+                if existing_message:
+                    db.session.delete(existing_message)
 
         if messages_saved == 0:
             flash('Devi inserire almeno un messaggio per salvare il template', 'error')
-            return render_template('groups/edit_template.html', group=group, template=template)
+            # CORREZIONE: Prepara existing_messages per il render
+            existing_messages = {
+                msg.user_id: msg.message_text
+                for msg in template.template_messages
+            }
+            return render_template('groups/edit_template.html',
+                                   group=group,
+                                   template=template,
+                                   existing_messages=existing_messages)
 
         db.session.commit()
         flash(f'Template "{template_name}" aggiornato con {messages_saved} messaggi', 'success')
         return redirect(url_for('groups.view_template', group_id=group_id, template_id=template.id))
 
     # GET - Prepara i dati per la modifica
-    # Crea un dizionario con i messaggi esistenti per ogni utente
-    existing_messages = {}
-    for template_msg in template.template_messages:
-        existing_messages[template_msg.user_id] = template_msg.message_text
+    # CORREZIONE PRINCIPALE: Filtra solo i messaggi di QUESTO template specifico
+    existing_messages = {
+        msg.user_id: msg.message_text
+        for msg in template.template_messages  # Usa template.template_messages invece di group.template_messages
+    }
 
     return render_template('groups/edit_template.html',
-                         group=group,
-                         template=template,
-                         existing_messages=existing_messages)
+                           group=group,
+                           template=template,
+                           existing_messages=existing_messages)
