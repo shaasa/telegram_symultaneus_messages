@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Modifica Template') }} - {{ template.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header della pagina -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2>{{ _('Modifica Template:') }} {{ template.name }}</h2>
+                    <p class="text-muted mb-0">{{ _('Gruppo:') }} <strong>{{ group.name }}</strong></p>
+                </div>
+                <div>
+                    <a href="{{ url_for('groups.view_template', group_id=group.id, template_id=template.id) }}" class="btn btn-outline-secondary">
+                        {{ _('Annulla') }}
+                    </a>
+                </div>
+            </div>
+
+            <!-- Form modifica template -->
+            <form method="POST" action="{{ url_for('groups.edit_template', group_id=group.id, template_id=template.id) }}">
+                <!-- Informazioni template -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">{{ _('Informazioni Template') }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="template_name"><strong>{{ _('Nome Template') }}</strong> <span class="text-danger">*</span></label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="template_name" 
+                                           name="template_name" 
+                                           value="{{ template.name }}"
+                                           placeholder="{{ _('Es: Messaggi di Natale') }}" 
+                                           required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="template_description">{{ _('Descrizione (opzionale)') }}</label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="template_description" 
+                                           name="template_description" 
+                                           value="{{ template.description or '' }}"
+                                           placeholder="{{ _('Breve descrizione del template') }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messaggi per utenti -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{ _('Messaggi per Utenti') }}</h5>
+                        <span class="badge badge-info">{{ group.users|length }} {{ _('utenti nel gruppo') }}</span>
+                    </div>
+                    <div class="card-body">
+                        {% if group.users %}
+                        <div class="row">
+                            {% for user in group.users %}
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-header bg-light">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <strong>{{ user.full_name }}</strong>
+                                            </div>
+                                            <div class="text-right">
+                                                {% if user.username %}
+                                                <small class="text-muted d-block">@{{ user.username }}</small>
+                                                {% endif %}
+                                                <small class="text-muted">ID: {{ user.telegram_id }}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group mb-0">
+                                            <label for="message_{{ user.id }}" class="form-label">
+                                                {{ _('Messaggio per') }} {{ user.full_name }}
+                                            </label>
+                                            <textarea class="form-control message-textarea" 
+                                                      id="message_{{ user.id }}" 
+                                                      name="message_{{ user.id }}" 
+                                                      rows="4" 
+                                                      placeholder="{{ _('Scrivi il messaggio personalizzato per questo utente...') }}"
+                                                      onkeyup="updateCharCount({{ user.id }})">{{ existing_messages.get(user.id, '') }}</textarea>
+                                            <small class="text-muted">
+                                                <span id="char_count_{{ user.id }}">0</span> {{ _('caratteri') }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="alert alert-warning">
+                            <h6>{{ _('Nessun utente nel gruppo') }}</h6>
+                            <p class="mb-0">{{ _('Aggiungi prima degli utenti al gruppo per poter creare un template.') }}</p>
+                            <a href="{{ url_for('groups.group_detail', group_id=group.id) }}" class="btn btn-sm btn-primary mt-2">
+                                {{ _('Gestisci Utenti') }}
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Pulsanti azione -->
+                {% if group.users %}
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <a href="{{ url_for('groups.view_template', group_id=group.id, template_id=template.id) }}" class="btn btn-outline-secondary">
+                                    {{ _('Annulla Modifiche') }}
+                                </a>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-info mr-2" onclick="clearAllMessages()">
+                                    {{ _('Svuota Tutti') }}
+                                </button>
+                                <button type="submit" class="btn btn-success">
+                                    {{ _('Salva Template Modificato') }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Statistiche in tempo reale -->
+<div class="fixed-bottom bg-light border-top p-2 d-none" id="stats-bar">
+    <div class="container-fluid">
+        <div class="row text-center">
+            <div class="col-md-3">
+                <small><strong>{{ _('Messaggi compilati:') }}</strong> <span id="filled-count">0</span>/{{ group.users|length }}</small>
+            </div>
+            <div class="col-md-3">
+                <small><strong>{{ _('Messaggi vuoti:') }}</strong> <span id="empty-count">{{ group.users|length }}</span></small>
+            </div>
+            <div class="col-md-3">
+                <small><strong>{{ _('Caratteri totali:') }}</strong> <span id="total-chars">0</span></small>
+            </div>
+            <div class="col-md-3">
+                <small><strong>{{ _('Media caratteri:') }}</strong> <span id="avg-chars">0</span></small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .message-textarea {
+        font-family: 'Courier New', monospace;
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    .message-textarea:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    
+    .card-header.bg-light {
+        background-color: #f8f9fa !important;
+    }
+    
+    #stats-bar {
+        z-index: 1030;
+    }
+</style>
+
+<script>
+    // Inizializza i contatori caratteri al caricamento
+    document.addEventListener('DOMContentLoaded', function() {
+        {% for user in group.users %}
+        updateCharCount({{ user.id }});
+        {% endfor %}
+        updateStats();
+        
+        // Mostra la barra delle statistiche se ci sono utenti
+        {% if group.users %}
+        document.getElementById('stats-bar').classList.remove('d-none');
+        {% endif %}
+    });
+
+    function updateCharCount(userId) {
+        const textarea = document.getElementById('message_' + userId);
+        const charCount = document.getElementById('char_count_' + userId);
+        const length = textarea.value.length;
+        charCount.textContent = length;
+        
+        // Aggiorna le statistiche globali
+        updateStats();
+    }
+
+    function updateStats() {
+        const textareas = document.querySelectorAll('.message-textarea');
+        let filledCount = 0;
+        let totalChars = 0;
+        
+        textareas.forEach(function(textarea) {
+            const length = textarea.value.trim().length;
+            if (length > 0) {
+                filledCount++;
+                totalChars += length;
+            }
+        });
+        
+        const emptyCount = textareas.length - filledCount;
+        const avgChars = filledCount > 0 ? Math.round(totalChars / filledCount) : 0;
+        
+        document.getElementById('filled-count').textContent = filledCount;
+        document.getElementById('empty-count').textContent = emptyCount;
+        document.getElementById('total-chars').textContent = totalChars;
+        document.getElementById('avg-chars').textContent = avgChars;
+    }
+
+    function clearAllMessages() {
+        if (confirm('{{ _("Sei sicuro di voler svuotare tutti i messaggi?") }}')) {
+            const textareas = document.querySelectorAll('.message-textarea');
+            textareas.forEach(function(textarea) {
+                textarea.value = '';
+                // Aggiorna il contatore caratteri per ogni textarea
+                const userId = textarea.id.replace('message_', '');
+                updateCharCount(userId);
+            });
+        }
+    }
+
+    // Aggiunge listener a tutte le textarea per aggiornare le statistiche
+    document.querySelectorAll('.message-textarea').forEach(function(textarea) {
+        textarea.addEventListener('input', function() {
+            const userId = this.id.replace('message_', '');
+            updateCharCount(userId);
+        });
+    });
+</script>
+{% endblock %}

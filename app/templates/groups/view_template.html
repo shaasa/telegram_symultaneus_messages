@@ -9,7 +9,7 @@
             <!-- Header della pagina -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h2><i class="fas fa-eye"></i> {{ template.name }}</h2>
+                    <h2>{{ template.name }}</h2>
                     <p class="text-muted mb-0">{{ _('Gruppo:') }} <strong>{{ group.name }}</strong></p>
                     {% if template.description %}
                     <p class="text-muted">{{ template.description }}</p>
@@ -17,10 +17,10 @@
                 </div>
                 <div>
                     <a href="{{ url_for('groups.list_templates', group_id=group.id) }}" class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left"></i> {{ _('Torna ai Template') }}
+                        {{ _('Torna ai Template') }}
                     </a>
                     <a href="{{ url_for('groups.load_template', group_id=group.id, template_id=template.id) }}" class="btn btn-success">
-                        <i class="fas fa-paper-plane"></i> {{ _('Carica & Invia') }}
+                        {{ _('Carica & Invia') }}
                     </a>
                 </div>
             </div>
@@ -30,26 +30,22 @@
                 <div class="col-md-4">
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-info-circle"></i> {{ _('Dettagli Template') }}</h5>
+                            <h5 class="mb-0">{{ _('Dettagli Template') }}</h5>
                         </div>
                         <div class="card-body">
                             <ul class="list-unstyled">
                                 <li class="mb-2">
-                                    <i class="fas fa-calendar-plus text-info"></i>
                                     <strong>{{ _('Creato:') }}</strong> {{ template.created_at.strftime('%d/%m/%Y %H:%M') }}
                                 </li>
                                 {% if template.updated_at and template.updated_at != template.created_at %}
                                 <li class="mb-2">
-                                    <i class="fas fa-calendar-edit text-warning"></i>
                                     <strong>{{ _('Modificato:') }}</strong> {{ template.updated_at.strftime('%d/%m/%Y %H:%M') }}
                                 </li>
                                 {% endif %}
                                 <li class="mb-2">
-                                    <i class="fas fa-envelope text-primary"></i>
                                     <strong>{{ _('Messaggi:') }}</strong> {{ template.template_messages|length }}
                                 </li>
                                 <li class="mb-2">
-                                    <i class="fas fa-users text-success"></i>
                                     <strong>{{ _('Utenti coinvolti:') }}</strong> {{ template.template_messages|length }} {{ _('di') }} {{ group.users|length }}
                                 </li>
                             </ul>
@@ -61,20 +57,20 @@
                     <!-- Azioni rapide -->
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-bolt"></i> {{ _('Azioni Rapide') }}</h5>
+                            <h5 class="mb-0">{{ _('Azioni Rapide') }}</h5>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6">
                                     <form method="POST" action="{{ url_for('groups.send_template_messages', group_id=group.id, template_id=template.id) }}" onsubmit="return vt_confirmSend()">
                                         <button type="submit" class="btn btn-success btn-block">
-                                            <i class="fas fa-paper-plane"></i> {{ _('Invia Tutti i Messaggi') }}
+                                            {{ _('Invia Tutti i Messaggi') }}
                                         </button>
                                     </form>
                                 </div>
                                 <div class="col-md-6">
-                                    <a href="{{ url_for('groups.load_template', group_id=group.id, template_id=template.id) }}" class="btn btn-primary btn-block">
-                                        <i class="fas fa-edit"></i> {{ _('Modifica & Invia') }}
+                                    <a href="{{ url_for('groups.edit_template', group_id=group.id, template_id=template.id) }}" class="btn btn-primary btn-block">
+                                        {{ _('Modifica Template') }}
                                     </a>
                                 </div>
                             </div>
@@ -86,7 +82,7 @@
             <!-- Lista messaggi del template -->
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-list"></i> {{ _('Messaggi del Template') }}</h5>
+                    <h5 class="mb-0">{{ _('Messaggi del Template') }}</h5>
                 </div>
                 <div class="card-body">
                     {% if template.template_messages %}
@@ -96,7 +92,6 @@
                             <div class="card h-100">
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <div class="d-flex align-items-center">
-                                        <i class="fas fa-user text-primary mr-2"></i>
                                         <strong>{{ message.user.full_name }}</strong>
                                     </div>
                                     {% if message.user.username %}
@@ -105,11 +100,11 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="vt-message-preview">
-                                        {{ message.message_text|nl2br }}
+                                        {{ message.message_text }}
                                     </div>
                                     <small class="text-muted mt-2 d-block">
-                                        <i class="fas fa-id-card"></i> ID: {{ message.user.telegram_id }}
-                                        | <i class="fas fa-font"></i> {{ message.message_text|length }} {{ _('caratteri') }}
+                                        {{ _('ID:') }} {{ message.user.telegram_id }}
+                                        | {{ message.message_text|length }} {{ _('caratteri') }}
                                     </small>
                                 </div>
                             </div>
@@ -118,7 +113,6 @@
                     </div>
                     {% else %}
                     <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle"></i>
                         {{ _('Questo template non contiene messaggi.') }}
                     </div>
                     {% endif %}
@@ -130,14 +124,14 @@
                 <div class="col-12">
                     <div class="card border-danger">
                         <div class="card-header bg-danger text-white">
-                            <h6 class="mb-0"><i class="fas fa-trash"></i> {{ _('Zona Pericolosa') }}</h6>
+                            <h6 class="mb-0">{{ _('Zona Pericolosa') }}</h6>
                         </div>
                         <div class="card-body">
                             <p class="mb-0">{{ _('L\'eliminazione del template è permanente e non può essere annullata.') }}</p>
                             <button type="button"
                                     class="btn btn-outline-danger mt-2"
                                     onclick="vt_confirmDelete()">
-                                <i class="fas fa-trash"></i> {{ _('Elimina Template') }}
+                                {{ _('Elimina Template') }}
                             </button>
                         </div>
                     </div>
@@ -164,7 +158,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _('Annulla') }}</button>
                 <button type="button" class="btn btn-success" onclick="document.getElementById('vt_sendForm').submit()">
-                    <i class="fas fa-paper-plane"></i> {{ _('Invia Messaggi') }}
+                    {{ _('Invia Messaggi') }}
                 </button>
             </div>
         </div>
@@ -215,223 +209,6 @@
 
     function vt_confirmDelete() {
         $('#vt_deleteModal').modal('show');
-    }
-</script>
-{% endblock %}
-
-{% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <!-- Header della pagina -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2><i class="fas fa-eye"></i> {{ template.name }}</h2>
-                    <p class="text-muted mb-0">Gruppo: <strong>{{ group.name }}</strong></p>
-                    {% if template.description %}
-                    <p class="text-muted">{{ template.description }}</p>
-                    {% endif %}
-                </div>
-                <div>
-                    <a href="{{ url_for('groups.list_templates', group_id=group.id) }}" class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left"></i> Torna ai Template
-                    </a>
-                    <a href="{{ url_for('groups.load_template', group_id=group.id, template_id=template.id) }}" class="btn btn-success">
-                        <i class="fas fa-paper-plane"></i> Carica & Invia
-                    </a>
-                </div>
-            </div>
-
-            <!-- Informazioni template -->
-            <div class="row mb-4">
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-info-circle"></i> Dettagli Template</h5>
-                        </div>
-                        <div class="card-body">
-                            <ul class="list-unstyled">
-                                <li class="mb-2">
-                                    <i class="fas fa-calendar-plus text-info"></i>
-                                    <strong>Creato:</strong> {{ template.created_at.strftime('%d/%m/%Y %H:%M') }}
-                                </li>
-                                {% if template.updated_at and template.updated_at != template.created_at %}
-                                <li class="mb-2">
-                                    <i class="fas fa-calendar-edit text-warning"></i>
-                                    <strong>Modificato:</strong> {{ template.updated_at.strftime('%d/%m/%Y %H:%M') }}
-                                </li>
-                                {% endif %}
-                                <li class="mb-2">
-                                    <i class="fas fa-envelope text-primary"></i>
-                                    <strong>Messaggi:</strong> {{ template.template_messages|length }}
-                                </li>
-                                <li class="mb-2">
-                                    <i class="fas fa-users text-success"></i>
-                                    <strong>Utenti coinvolti:</strong> {{ template.template_messages|length }} di {{ group.users|length }}
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-8">
-                    <!-- Azioni rapide -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-bolt"></i> Azioni Rapide</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <form method="POST" action="{{ url_for('groups.send_template_messages', group_id=group.id, template_id=template.id) }}" onsubmit="return confirmSend()">
-                                        <button type="submit" class="btn btn-success btn-block">
-                                            <i class="fas fa-paper-plane"></i> Invia Tutti i Messaggi
-                                        </button>
-                                    </form>
-                                </div>
-                                <div class="col-md-6">
-                                    <a href="{{ url_for('groups.load_template', group_id=group.id, template_id=template.id) }}" class="btn btn-primary btn-block">
-                                        <i class="fas fa-edit"></i> Modifica & Invia
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Lista messaggi del template -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-list"></i> Messaggi del Template</h5>
-                </div>
-                <div class="card-body">
-                    {% if template.template_messages %}
-                    <div class="row">
-                        {% for message in template.template_messages %}
-                        <div class="col-md-6 mb-4">
-                            <div class="card h-100">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-user text-primary mr-2"></i>
-                                        <strong>{{ message.user.full_name }}</strong>
-                                    </div>
-                                    {% if message.user.username %}
-                                    <small class="text-muted">@{{ message.user.username }}</small>
-                                    {% endif %}
-                                </div>
-                                <div class="card-body">
-                                    <div class="message-preview">
-                                        {{ message.message_text|nl2br }}
-                                    </div>
-                                    <small class="text-muted mt-2 d-block">
-                                        <i class="fas fa-id-card"></i> ID: {{ message.user.telegram_id }}
-                                        | <i class="fas fa-font"></i> {{ message.message_text|length }} caratteri
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        Questo template non contiene messaggi.
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Sezione eliminazione -->
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="card border-danger">
-                        <div class="card-header bg-danger text-white">
-                            <h6 class="mb-0"><i class="fas fa-trash"></i> Zona Pericolosa</h6>
-                        </div>
-                        <div class="card-body">
-                            <p class="mb-0">L'eliminazione del template è permanente e non può essere annullata.</p>
-                            <button type="button"
-                                    class="btn btn-outline-danger mt-2"
-                                    onclick="confirmDelete()">
-                                <i class="fas fa-trash"></i> Elimina Template
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal conferma invio -->
-<div class="modal fade" id="sendModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Conferma Invio</h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Sei sicuro di voler inviare <strong>{{ template.template_messages|length }} messaggi</strong> usando il template "<strong>{{ template.name }}</strong>"?</p>
-                <p class="text-muted small">I messaggi verranno inviati immediatamente a tutti gli utenti del template.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
-                <button type="button" class="btn btn-success" onclick="document.getElementById('sendForm').submit()">
-                    <i class="fas fa-paper-plane"></i> Invia Messaggi
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal conferma eliminazione -->
-<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Conferma Eliminazione</h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Sei sicuro di voler eliminare il template "<strong>{{ template.name }}</strong>"?</p>
-                <p class="text-muted small">Questa azione non può essere annullata.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
-                <form method="POST" action="{{ url_for('groups.delete_template', group_id=group.id, template_id=template.id) }}" style="display: inline;">
-                    <button type="submit" class="btn btn-danger">Elimina</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
-    .message-preview {
-        background-color: #f8f9fa;
-        border-left: 4px solid #007bff;
-        padding: 10px;
-        border-radius: 4px;
-        font-family: 'Courier New', monospace;
-        white-space: pre-wrap;
-        max-height: 150px;
-        overflow-y: auto;
-    }
-</style>
-
-<script>
-    function confirmSend() {
-        return confirm('Sei sicuro di voler inviare {{ template.template_messages|length }} messaggi?');
-    }
-
-    function confirmDelete() {
-        $('#deleteModal').modal('show');
     }
 </script>
 {% endblock %}

@@ -25,6 +25,36 @@ def create_template_tables():
 
         cursor = connection.cursor()
 
+        # SQL per creare la tabella groups se non esiste
+        groups_sql = """
+        CREATE TABLE IF NOT EXISTS `groups` (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(100) NOT NULL UNIQUE,
+            description TEXT,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        """
+
+        # SQL per creare la tabella users se non esiste
+        users_sql = """
+        CREATE TABLE IF NOT EXISTS users (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            telegram_id VARCHAR(20) UNIQUE NOT NULL,
+            username VARCHAR(100),
+            first_name VARCHAR(100),
+            last_name VARCHAR(100),
+            display_name VARCHAR(200),
+            language_code VARCHAR(5) DEFAULT 'it',
+            is_active BOOLEAN NOT NULL DEFAULT TRUE,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            last_interaction DATETIME,
+            INDEX ix_users_telegram_id (telegram_id),
+            INDEX ix_users_username (username)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        """
+
         # SQL per creare la tabella dei template
         template_sql = """
         CREATE TABLE IF NOT EXISTS message_templates (
@@ -56,7 +86,15 @@ def create_template_tables():
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         """
 
-        # Esegui le query
+        # Esegui le query nell'ordine corretto
+        print("🚀 Creazione tabella groups...")
+        cursor.execute(groups_sql)
+        print("✅ Tabella groups creata!")
+
+        print("🚀 Creazione tabella users...")
+        cursor.execute(users_sql)
+        print("✅ Tabella users creata!")
+
         print("🚀 Creazione tabella message_templates...")
         cursor.execute(template_sql)
         print("✅ Tabella message_templates creata!")
@@ -66,6 +104,14 @@ def create_template_tables():
         print("✅ Tabella template_messages creata!")
 
         # Verifica che le tabelle siano state create
+        cursor.execute("SHOW TABLES LIKE 'groups'")
+        if cursor.fetchone():
+            print("✅ Verifica: tabella 'groups' esistente")
+
+        cursor.execute("SHOW TABLES LIKE 'users'")
+        if cursor.fetchone():
+            print("✅ Verifica: tabella 'users' esistente")
+
         cursor.execute("SHOW TABLES LIKE 'message_templates'")
         if cursor.fetchone():
             print("✅ Verifica: tabella 'message_templates' esistente")
@@ -93,7 +139,7 @@ def create_template_tables():
 
 if __name__ == '__main__':
     print("🚀 Creazione tabelle per i template di messaggi...")
-    print("📋 La tabella message_logs esiste già e non sarà modificata")
+    print("📋 Verranno create anche le tabelle groups e users se necessario")
 
     if create_template_tables():
         print("\n🎉 Migrazione completata!")

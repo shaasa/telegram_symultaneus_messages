@@ -218,7 +218,7 @@ def list_templates(group_id):
     templates = MessageTemplate.query.filter_by(
         group_id=group_id,
         is_active=True
-    ).order_by(MessageTemplate.created_at.desc()).all()
+    ).order_by(MessageTemplate.created_at.asc()).all()
 
     return render_template('groups/templates.html', group=group, templates=templates)
 
@@ -658,3 +658,76 @@ def debug_environment(group_id):
             flash(f"🔍 File .env contiene TELEGRAM_BOT_TOKEN: {has_token}", 'info')
 
     return redirect(url_for('groups.group_detail', group_id=group_id))
+# Aggiungi questa route al tuo groups.py
+
+@groups_bp.route('/<int:group_id>/templates/<int:template_id>/edit', methods=['GET', 'POST'])
+def edit_template(group_id, template_id):
+    """Modifica un template esistente"""
+    from app.models import MessageTemplate, TemplateMessage
+
+    group = Group.query.get_or_404(group_id)
+    template = MessageTemplate.query.filter_by(
+        id=template_id,
+        group_id=group_id,
+        is_active=True
+    ).first_or_404()
+
+    if request.method == 'POST':
+        # Aggiorna nome e descrizione del template
+        template_name = request.form.get('template_name', '').strip()
+        template_description = request.form.get('template_description', '').strip()
+
+        if not template_name:
+            flash('Il nome del template è obbligatorio', 'error')
+            return render_template('groups/edit_template.html', group=group, template=template)
+
+        # Verifica che non esista già un template con questo nome per il gruppo (escludendo se stesso)
+        existing_template = MessageTemplate.query.filter_by(
+            group_id=group_id,
+            name=template_name,
+            is_active=True
+        ).filter(MessageTemplate.id != template_id).first()
+
+        if existing_template:
+            flash('Esiste già un template con questo nome per questo gruppo', 'error')
+            return render_template('groups/edit_template.html', group=group, template=template)
+
+        # Aggiorna il template
+        template.name = template_name
+        template.description = template_description
+
+        # Elimina tutti i messaggi esistenti del template
+        TemplateMessage.query.filter_by(template_id=template.id).delete()
+
+        # Salva i nuovi messaggi per ogni utente
+        messages_saved = 0
+        for user in group.users:
+            message_text = request.form.get(f'message_{user.id}', '').strip()
+            if message_text:
+                template_message = TemplateMessage(
+                    template_id=template.id,
+                    user_id=user.id,
+                    message_text=message_text,
+                    order_index=messages_saved
+                )
+                db.session.add(template_message)
+                messages_saved += 1
+
+        if messages_saved == 0:
+            flash('Devi inserire almeno un messaggio per salvare il template', 'error')
+            return render_template('groups/edit_template.html', group=group, template=template)
+
+        db.session.commit()
+        flash(f'Template "{template_name}" aggiornato con {messages_saved} messaggi', 'success')
+        return redirect(url_for('groups.view_template', group_id=group_id, template_id=template.id))
+
+    # GET - Prepara i dati per la modifica
+    # Crea un dizionario con i messaggi esistenti per ogni utente
+    existing_messages = {}
+    for template_msg in template.template_messages:
+        existing_messages[template_msg.user_id] = template_msg.message_text
+
+    return render_template('groups/edit_template.html',
+                         group=group,
+                         template=template,
+                         existing_messages=existing_messages)
